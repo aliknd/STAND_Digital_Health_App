@@ -2,23 +2,31 @@ import React from "react";
 import { ImageBackground, StyleSheet, View, Image, Text } from "react-native";
 
 import colors from "../config/colors";
+import AppButton from "../components/AppButton";
 
-function WelcomeScreen(props) {
+function WelcomeScreen({ navigation }) {
   return (
     <ImageBackground
+      blurRadius={10}
       style={styles.background}
       source={require("../assets/background.jpg")}
     >
       <View style={styles.logoContainer}>
         <Image style={styles.logo} source={require("../assets/logo.png")} />
-        <Text>Stress and Anxiety Detection</Text>
+        <Text style={styles.logoDesc}>
+          <Text style={styles.logodescColor}>ST</Text>ress and{" "}
+          <Text style={styles.logodescColor}>AN</Text>xiety{" "}
+          <Text style={styles.logodescColor}>D</Text>etection
+        </Text>
       </View>
 
-      <View style={styles.loginButton}>
-        <Text style={styles.textStyle}>Login</Text>
-      </View>
-      <View style={styles.registerButton}>
-        <Text style={styles.textStyle}>Register</Text>
+      <View style={styles.buttonsContainer}>
+        <AppButton title="Login" onPress={() => navigation.navigate("Login")} />
+        <AppButton
+          title="Register"
+          color="secondary"
+          onPress={() => navigation.navigate("Register")}
+        />
       </View>
     </ImageBackground>
   );
@@ -30,13 +38,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
   },
-  loginButton: {
+  buttonsContainer: {
+    padding: 20,
     width: "100%",
-    height: 70,
-    backgroundColor: colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    fontWeight: "bold",
   },
   logo: {
     width: 200,
@@ -47,16 +51,13 @@ const styles = StyleSheet.create({
     top: 70,
     alignItems: "center",
   },
-  registerButton: {
-    width: "100%",
-    height: 70,
-    backgroundColor: colors.secondary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textStyle: {
+  logoDesc: {
     fontSize: 25,
-    fontWeight: "bold",
+    fontWeight: "600",
+    paddingVertical: 10,
+  },
+  logodescColor: {
+    color: colors.logo,
   },
 });
 
