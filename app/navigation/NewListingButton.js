@@ -7,11 +7,7 @@ function NewListingButton({ onPress }) {
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.container}>
-        <MaterialCommunityIcons
-          name="progress-question"
-          color={colors.white}
-          size={40}
-        />
+        <MaterialCommunityIcons name="home" color={colors.white} size={40} />
       </View>
     </TouchableOpacity>
   );

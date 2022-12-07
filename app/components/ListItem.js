@@ -5,12 +5,9 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import colors from "../config/colors";
 import AppText from "./AppText";
 
-function ListItem({ title, subTitle, image, IconComponent }) {
+function ListItem({ title, subTitle, image, IconComponent, onPress }) {
   return (
-    <TouchableHighlight
-      underlayColor={colors.lightGray}
-      onPress={() => console.log("just Tapped!")}
-    >
+    <TouchableHighlight underlayColor={colors.lightGray} onPress={onPress}>
       <View style={styles.container}>
         {IconComponent}
         {image && <Image style={styles.image} source={image} />}

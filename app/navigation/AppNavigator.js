@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import AccountScreen from "../screens/AccountScreen";
-import SelfieScreen from "../screens/SelfieScreen";
+import QuestionnaireScreen from "../screens/QuestionnaireScreen";
 import FeedNavigator from "./FeedNavigator";
 import NewListingButton from "./NewListingButton";
 
@@ -30,21 +30,21 @@ const AppNavigator = () => (
           />
         ),
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons
-            name="progress-question"
-            color={color}
-            size={size}
-          />
+          <MaterialCommunityIcons name="home" color={color} size={size} />
         ),
         headerShown: false,
       })}
     />
     <Tab.Screen
-      name="Selfie"
-      component={SelfieScreen}
+      name="Questionnaire"
+      component={QuestionnaireScreen}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="camera" color={color} size={size} />
+          <MaterialCommunityIcons
+            name="beaker-question"
+            color={color}
+            size={size}
+          />
         ),
       }}
     />
