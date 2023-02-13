@@ -1,37 +1,57 @@
-import React from "react";
-import { FlatList } from "react-native";
+import React, { useEffect, useState } from "react";
+import { FlatList, Text } from "react-native";
 import ListItem from "../components/ListItem";
 import ListItemSeparator from "../components/ListItemSeparator";
+import Screen from "../components/Screen";
+import useAuth from "../auth/useAuth";
+import routes from "../navigation/routes";
+import endpointURL from "../api/serverPoint";
 
-const messages = [
-  {
-    id: 1,
-    title: "First Title",
-    description: "First Description",
-    image: require("../assets/ali.jpg"),
-  },
-  {
-    id: 2,
-    title: "Second Title",
-    description: "Second Description",
-    image: require("../assets/ali.jpg"),
-  },
-];
-function MessagesScreen(props) {
+function MessagesScreen({ navigation }) {
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
+  const getRecords = async () => {
+    try {
+      const response = await fetch(endpointURL + "/gmessages");
+      const json = await response.json();
+      setData(json);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getRecords();
+  }, []);
+
+  const { user } = useAuth();
+  if (user.catdog == "cat") {
+    var imSource = require("../assets/catadmin.jpg");
+  } else {
+    var imSource = require("../assets/dogadmin.jpg");
+  }
+
   return (
     <Screen>
-      <FlatList
-        data={messages}
-        keyExtractor={(message) => message.id.toString()}
-        renderItem={({ item }) => (
-          <ListItem
-            title={item.title}
-            subTitle={item.description}
-            image={item.image}
-          />
-        )}
-        ItemSeparatorComponent={ListItemSeparator}
-      />
+      {isLoading ? (
+        <Text>Loading...</Text>
+      ) : (
+        <FlatList
+          data={data}
+          keyExtractor={(message) => message.id.toString()}
+          renderItem={({ item }) => (
+            <ListItem
+              title={item.title}
+              subTitle={item.description}
+              image={imSource}
+              onPress={() => navigation.navigate(routes.MESSAGE_DETAILS, item)}
+            />
+          )}
+          ItemSeparatorComponent={ListItemSeparator}
+        />
+      )}
     </Screen>
   );
 }

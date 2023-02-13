@@ -25,6 +25,7 @@ const validationSchema = Yup.object().shape({
   genCategory: Yup.object().required().nullable().label("Gender"),
   ageCategory: Yup.object().required().nullable().label("Age"),
   raceCategory: Yup.object().required().nullable().label("Race"),
+  catDog: Yup.object().required().nullable().label("Cat/Dog"),
 });
 
 const genCategories = [
@@ -35,13 +36,19 @@ const genCategories = [
 ];
 
 const ageCategories = [
-  { label: "12", value: 12 },
-  { label: "13", value: 13 },
-  { label: "14", value: 14 },
-  { label: "15", value: 15 },
-  { label: "16", value: 16 },
-  { label: "17", value: 17 },
   { label: "18", value: 18 },
+  { label: "19", value: 19 },
+  { label: "20", value: 20 },
+  { label: "21", value: 21 },
+  { label: "22", value: 22 },
+  { label: "23", value: 23 },
+  { label: "24", value: 24 },
+  { label: "25", value: 25 },
+  { label: "26", value: 26 },
+  { label: "27", value: 27 },
+  { label: "28", value: 28 },
+  { label: "29", value: 29 },
+  { label: "30", value: 30 },
 ];
 
 const raceCategories = [
@@ -49,6 +56,11 @@ const raceCategories = [
   { label: "Black", value: 2 },
   { label: "White", value: 3 },
   { label: "Prefer Not to State", value: 4 },
+];
+
+const catDog = [
+  { label: "cat", value: 1 },
+  { label: "dog", value: 2 },
 ];
 
 function RegisterScreen(props) {
@@ -73,6 +85,7 @@ function RegisterScreen(props) {
       userInfo.email,
       userInfo.password
     );
+    console.log(authToken);
     auth.logIn(authToken);
   };
 
@@ -89,6 +102,7 @@ function RegisterScreen(props) {
             genCategory: "",
             ageCategory: "",
             raceCategory: "",
+            catDog: "",
             password: "",
           }}
           onSubmit={handleSubmit}
@@ -129,6 +143,12 @@ function RegisterScreen(props) {
             placeholder="Race"
             icon="account-child"
             name="raceCategory"
+          />
+          <AppFormPicker
+            items={catDog}
+            placeholder="Dog Person or Cat Person?"
+            icon="paw"
+            name="catDog"
           />
           <AppFormField
             autoCapitalize="none"

@@ -7,7 +7,9 @@ const getListings = () => client.get(endpoint);
 export const addListing = (listing, onUploadProgress) => {
   const data = new FormData();
   data.append("categoryId", listing.category.value);
-
+  data.append("questionId", listing.cquestion);
+  data.append("cuserId", listing.cuser);
+  console.log(listing.cuser);
   listing.images.forEach((image, index) =>
     data.append("images", {
       name: "image" + index,

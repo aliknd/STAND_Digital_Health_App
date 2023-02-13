@@ -12,30 +12,7 @@ import NavigationTheme from "./app/navigation/NavigationTheme";
 import AppNavigator from "./app/navigation/AppNavigator";
 import AuthContext from "./app/auth/context";
 import authStorage from "./app/auth/storage";
-
-const Tweets = ({ navigation }) => (
-  <Screen>
-    <Text>Tweets</Text>
-    <Button
-      title="View Tweet"
-      onPress={() => navigation.navigate("TweetDetails")}
-    />
-  </Screen>
-);
-
-const TweetDetails = () => (
-  <Screen>
-    <Text>Tweet Details</Text>
-  </Screen>
-);
-
-const Stack = createStackNavigator();
-const StackNavigator = () => (
-  <Stack.Navigator>
-    <Stack.Screen name="Tweets" component={Tweets} />
-    <Stack.Screen name="TweetDetails" component={TweetDetails} />
-  </Stack.Navigator>
-);
+import { navigationRef } from "./app/navigation/rootNavigation";
 
 const Account = () => (
   <Screen>
@@ -103,7 +80,11 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
-      <NavigationContainer theme={NavigationTheme} onReady={onLayoutRootView}>
+      <NavigationContainer
+        ref={navigationRef}
+        theme={NavigationTheme}
+        onReady={onLayoutRootView}
+      >
         {user ? <AppNavigator /> : <AuthNavigator />}
       </NavigationContainer>
     </AuthContext.Provider>

@@ -19,6 +19,8 @@ function ListingsScreen({ navigation }) {
     request: loadListings,
   } = useApi(listingsApi.getListings);
 
+  console.log(listings);
+
   useEffect(() => {
     loadListings();
   }, []);
@@ -52,8 +54,8 @@ function ListingsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: {
-    padding: 20,
-    backgroundColor: colors.lightGray,
+    padding: 10,
+    backgroundColor: colors.lightGreen,
   },
 });
 

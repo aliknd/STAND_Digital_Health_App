@@ -3,4 +3,7 @@ export default Object.freeze({
   LOGIN: "Login",
   REGISTER: "Register",
   LISTINGS: "Listings",
+  RECORD: "Record",
+  ACCOUNT: "Account",
+  MESSAGE_DETAILS: "Message Details",
 });

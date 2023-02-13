@@ -8,4 +8,6 @@ export default {
   lightGray: "#f8f4f4",
   darkGray: "#0c0c0c",
   error: "#fa1010",
+  lightGreen: "#dbf1ee",
+  darkGreen: "#76d6cb",
 };

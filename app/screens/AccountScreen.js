@@ -7,12 +7,13 @@ import colors from "../config/colors";
 import Icon from "../components/Icon";
 import ListItemSeparator from "../components/ListItemSeparator";
 import useAuth from "../auth/useAuth";
+import routes from "../navigation/routes";
 
 const menuItems = [
   {
-    title: "My Questionnaires",
+    title: "My Questionnaire",
     icon: {
-      name: "format-list-bulleted",
+      name: "head-question-outline",
       backgroundColor: colors.primary,
     },
   },
@@ -25,16 +26,35 @@ const menuItems = [
   },
 ];
 
-function AccountScreen(props) {
+function AccountScreen({ navigation }) {
   const { user, logOut } = useAuth();
+
+  if (user.catdog == "cat") {
+    var imSource = require("../assets/catuser.png");
+  } else {
+    var imSource = require("../assets/doguser.png");
+  }
 
   return (
     <Screen style={styles.screen}>
       <View style={styles.container}>
+        <ListItem title={user.name} subTitle={user.email} image={imSource} />
         <ListItem
-          title={user.name}
-          subTitle={user.email}
-          image={require("../assets/ali.jpg")}
+          title="Your Awarded Stars:"
+          subTitle={user.badge.toString()}
+          image={require("../assets/star.png")}
+        />
+      </View>
+      <View style={styles.container}>
+        <ListItem
+          title="My Registered Questionnaires"
+          IconComponent={
+            <Icon
+              name="format-list-bulleted"
+              backgroundColor={colors.darkGreen}
+            />
+          }
+          onPress={() => navigation.navigate("Records")}
         />
       </View>
       <View style={styles.container}>
@@ -51,15 +71,25 @@ function AccountScreen(props) {
                   backgroundColor={item.icon.backgroundColor}
                 />
               }
+              onPress={() => navigation.navigate(item.title)}
             />
           )}
         />
       </View>
       <ListItem
-        title="Log Out"
-        IconComponent={<Icon name="logout" backgroundColor="#ffe66d" />}
-        onPress={() => logOut()}
+        title="Downloads"
+        IconComponent={
+          <Icon name="download-box" backgroundColor={colors.primary} />
+        }
+        onPress={() => navigation.navigate("Downloads")}
       />
+      <View style={styles.container}>
+        <ListItem
+          title="Log Out"
+          IconComponent={<Icon name="logout" backgroundColor="#ffe66d" />}
+          onPress={() => logOut()}
+        />
+      </View>
     </Screen>
   );
 }
@@ -69,7 +99,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   screen: {
-    backgroundColor: colors.lightGray,
+    backgroundColor: colors.lightGreen,
   },
 });
 

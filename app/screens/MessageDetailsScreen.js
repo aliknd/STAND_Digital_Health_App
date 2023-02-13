@@ -9,13 +9,11 @@ function ListingDetailsScreen({ route }) {
   return (
     <ScrollView>
       <View>
-        <Image style={styles.image} source={{ uri: listing.images[0].url }} />
         <View style={styles.detailsContainer}>
           <View style={styles.titleContainer}>
             <AppText style={styles.title}>{listing.title}</AppText>
           </View>
           <AppText style={styles.explanation}>{listing.explanation}</AppText>
-          <AppText style={styles.explanation}>{listing.extraInfo}</AppText>
         </View>
       </View>
     </ScrollView>
@@ -25,6 +23,8 @@ function ListingDetailsScreen({ route }) {
 const styles = StyleSheet.create({
   detailsContainer: {
     padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
   explanation: {
     backgroundColor: colors.lightGreen,

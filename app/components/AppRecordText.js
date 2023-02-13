@@ -1,8 +1,8 @@
 import React from "react";
 import { Text, StyleSheet, View } from "react-native";
-import colors from "../../config/colors";
+import colors from "../config/colors";
 
-function AppFormText({ children }) {
+function AppRecordText({ children }) {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>{children}</Text>
@@ -12,15 +12,16 @@ function AppFormText({ children }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.darkGreen,
     padding: 10,
     borderRadius: 15,
+    marginBottom: 5,
   },
   text: {
     marginLeft: 10,
-    fontSize: 20,
+    fontSize: 18,
     color: colors.white,
   },
 });
 
-export default AppFormText;
+export default AppRecordText;
