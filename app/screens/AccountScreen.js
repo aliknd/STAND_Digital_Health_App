@@ -7,7 +7,6 @@ import colors from "../config/colors";
 import Icon from "../components/Icon";
 import ListItemSeparator from "../components/ListItemSeparator";
 import useAuth from "../auth/useAuth";
-import routes from "../navigation/routes";
 
 const menuItems = [
   {

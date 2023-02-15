@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Text } from "react-native";
-import { createStackNavigator } from "@react-navigation/stack";
+import { Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

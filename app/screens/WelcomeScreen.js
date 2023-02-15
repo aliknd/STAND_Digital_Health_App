@@ -14,11 +14,6 @@ function WelcomeScreen({ navigation }) {
     >
       <View style={styles.logoContainer}>
         <Image style={styles.logo} source={require("../assets/logo.png")} />
-        <Text style={styles.logoDesc}>
-          <Text style={styles.logodescColor}>ST</Text>ress and{" "}
-          <Text style={styles.logodescColor}>AN</Text>xiety{" "}
-          <Text style={styles.logodescColor}>D</Text>etection
-        </Text>
       </View>
 
       <View style={styles.buttonsContainer}>

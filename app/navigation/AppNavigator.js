@@ -3,7 +3,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
 
-import AccountScreen from "../screens/AccountScreen";
 import RecordNavigator from "./RecordNavigator";
 import QuestionnaireScreen from "../screens/QuestionnaireScreen";
 import FeedNavigator from "./FeedNavigator";
