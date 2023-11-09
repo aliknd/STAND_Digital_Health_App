@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { AppFormText, AppForm, SubmitButton } from "../components/forms";
 import AppFormPicker from "../components/forms/AppFormPicker";
 import AppFormImagePicker from "../components/forms/AppFormImagePicker";
-import { ScrollView, StyleSheet, Alert, Image, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Alert, Image, Text } from "react-native";
 import listingsApi from "../api/listings";
 import Screen from "../components/Screen";
 import UploadScreen from "./UploadScreen";
@@ -53,35 +53,35 @@ function QuestionnaireScreen({ navigation }) {
   var hours = new Date().getHours();
   if (hours > 10 && hours <= 12) {
     var finalId = 0;
-    if (user.catdog == "cat") {
+    if (user.catdog == "Cat") {
       var imSource = require("../assets/animations/cat/cattired.gif");
     } else {
       var imSource = require("../assets/animations/dog/dogtired.gif");
     }
   } else if (hours > 12 && hours <= 15) {
     var finalId = 1;
-    if (user.catdog == "cat") {
+    if (user.catdog == "Cat") {
       var imSource = require("../assets/animations/cat/catfocus.gif");
     } else {
       var imSource = require("../assets/animations/dog/dogfocus.gif");
     }
   } else if (hours > 15 && hours <= 18) {
     var finalId = 2;
-    if (user.catdog == "cat") {
+    if (user.catdog == "Cat") {
       var imSource = require("../assets/animations/cat/catsleep.gif");
     } else {
       var imSource = require("../assets/animations/dog/dogsleep.gif");
     }
   } else if (hours > 18 && hours <= 21) {
     var finalId = 3;
-    if (user.catdog == "cat") {
+    if (user.catdog == "Cat") {
       var imSource = require("../assets/animations/cat/catpain.gif");
     } else {
       var imSource = require("../assets/animations/dog/dogpain.gif");
     }
   } else {
     var finalId = 4;
-    if (user.catdog == "cat") {
+    if (user.catdog == "Cat") {
       var imSource = require("../assets/animations/cat/catstress.gif");
     } else {
       var imSource = require("../assets/animations/dog/dogstress.gif");
@@ -110,8 +110,8 @@ function QuestionnaireScreen({ navigation }) {
   };
 
   return (
-    <ScrollView>
-      <Screen style={styles.container}>
+    <Screen style={styles.quScreen}>
+      <ScrollView>
         <UploadScreen
           onDone={() => setUploadVisible(false)}
           progress={progress}
@@ -138,9 +138,9 @@ function QuestionnaireScreen({ navigation }) {
               width: "100%",
               height: 300,
               borderRadius: 30,
-              overlayColor: colors.lightGreen,
+              overlayColor: colors.bgcolor,
               overflow: "hidden",
-              marginVertical: 25,
+              marginVertical: 15,
             }}
             source={imSource}
           />
@@ -154,15 +154,14 @@ function QuestionnaireScreen({ navigation }) {
           <AppFormImagePicker name="images" />
           <SubmitButton title="Post" />
         </AppForm>
-      </Screen>
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 export default QuestionnaireScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  quScreen: {
     padding: 10,
-    backgroundColor: colors.lightGreen,
   },
 });

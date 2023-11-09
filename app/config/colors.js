@@ -1,6 +1,9 @@
 export default {
-  primary: "#fc5c65",
-  secondary: "#4ecdc4",
+  primary: "#f0810f",
+  secondary: "#063852",
+  third: "#e6df44",
+  bgcolor: "#011a27",
+  bglight: "#022233",
   logo: "#fa1010",
   white: "#fff",
   black: "#000",
@@ -8,6 +11,6 @@ export default {
   lightGray: "#f8f4f4",
   darkGray: "#0c0c0c",
   error: "#fa1010",
-  lightGreen: "#dbf1ee",
-  darkGreen: "#76d6cb",
+  lightGreen: "#063852",
+  darkGreen: "#063852",
 };

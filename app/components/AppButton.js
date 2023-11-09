@@ -20,11 +20,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 15,
     width: "100%",
-    marginVertical: 12,
+    marginVertical: 7,
   },
   text: {
     color: colors.white,
-    fontSize: 18,
+    fontSize: 21,
     textTransform: "uppercase",
     fontWeight: "bold",
   },

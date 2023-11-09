@@ -32,7 +32,6 @@ function DownloadScreen(props) {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    backgroundColor: colors.lightGreen,
   },
   logo: {
     width: "100%",
@@ -43,7 +42,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   explanation: {
-    backgroundColor: colors.darkGreen,
+    backgroundColor: colors.secondary,
+    color: colors.white,
     padding: 15,
     marginBottom: 10,
     borderRadius: 20,

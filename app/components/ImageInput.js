@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -12,6 +12,15 @@ import * as ImagePicker from "expo-image-picker";
 import colors from "../config/colors";
 
 function ImageInput({ imageUri, onChangeImage }) {
+  const requestPermissions = async () => {
+    const { granted } = await ImagePicker.requestCameraPermissionsAsync();
+    if (!granted) alert("You need to enable permissions for using the camera!");
+  };
+
+  useEffect(() => {
+    requestPermissions();
+  }, []);
+
   const handlePress = () => {
     if (!imageUri)
       // Alert.alert("Selecting Photo", "How to you want to upload the photo?", [

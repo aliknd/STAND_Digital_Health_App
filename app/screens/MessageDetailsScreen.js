@@ -1,22 +1,25 @@
 import React from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import AppText from "../components/AppText";
+import Screen from "../components/Screen";
 import colors from "../config/colors";
 
 function ListingDetailsScreen({ route }) {
   const listing = route.params;
   console.log(listing);
   return (
-    <ScrollView>
-      <View>
-        <View style={styles.detailsContainer}>
-          <View style={styles.titleContainer}>
-            <AppText style={styles.title}>{listing.title}</AppText>
+    <Screen>
+      <ScrollView>
+        <View>
+          <View style={styles.detailsContainer}>
+            <View style={styles.titleContainer}>
+              <AppText style={styles.title}>{listing.title}</AppText>
+            </View>
+            <AppText style={styles.explanation}>{listing.explanation}</AppText>
           </View>
-          <AppText style={styles.explanation}>{listing.explanation}</AppText>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </Screen>
   );
 }
 
@@ -27,21 +30,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   explanation: {
-    backgroundColor: colors.lightGreen,
+    backgroundColor: colors.secondary,
     padding: 15,
     marginBottom: 10,
     borderRadius: 20,
+    color: colors.white,
+    textAlign: "center",
   },
   image: {
     width: "100%",
     height: 300,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "500",
+    fontSize: 21,
+    fontWeight: "bold",
+    color: colors.white,
+    textAlign: "center",
   },
   titleContainer: {
-    backgroundColor: colors.darkGreen,
+    backgroundColor: colors.primary,
     padding: 15,
     borderRadius: 20,
     marginBottom: 10,

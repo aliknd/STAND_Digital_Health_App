@@ -30,7 +30,7 @@ function LoginScreen(props) {
     logIn(result.data);
   };
   return (
-    <Screen style={styles.container}>
+    <Screen style={styles.screen}>
       <Image style={styles.logo} source={require("../assets/logo.png")} />
 
       <AppForm
@@ -67,7 +67,7 @@ function LoginScreen(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     padding: 10,
   },
   logo: {

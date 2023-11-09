@@ -28,7 +28,7 @@ function ListingsScreen({ navigation }) {
   return (
     <>
       <AppActivityIndicator visible={loading} />
-      <Screen style={styles.screen}>
+      <Screen style={styles.liScreen}>
         {error && (
           <>
             <AppText>We could not retrieve the questionnaire!</AppText>
@@ -53,9 +53,8 @@ function ListingsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  liScreen: {
     padding: 10,
-    backgroundColor: colors.lightGreen,
   },
 });
 

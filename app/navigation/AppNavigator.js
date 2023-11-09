@@ -9,6 +9,7 @@ import FeedNavigator from "./FeedNavigator";
 import NewListingButton from "./NewListingButton";
 import expoPushTokensApi from "../api/expoPushTokens";
 import navigation from "./rootNavigation";
+import colors from "../config/colors";
 
 const Tab = createBottomTabNavigator();
 
@@ -31,7 +32,11 @@ const AppNavigator = () => {
     }
   };
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarShowLabel: false,
+      }}
+    >
       <Tab.Screen
         name="My Account"
         component={RecordNavigator}
@@ -74,9 +79,3 @@ const AppNavigator = () => {
 };
 
 export default AppNavigator;
-
-// const screenOptions = {
-//   tabBarStyle: {
-//     backgroundColor: "#76d6cb",
-//   },
-// };

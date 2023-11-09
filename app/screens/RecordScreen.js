@@ -57,7 +57,6 @@ function ListingsScreen() {
 const styles = StyleSheet.create({
   screen: {
     padding: 10,
-    backgroundColor: colors.lightGreen,
   },
   logodescColor: {
     color: colors.logo,

@@ -27,7 +27,7 @@ function MessagesScreen({ navigation }) {
   }, []);
 
   const { user } = useAuth();
-  if (user.catdog == "cat") {
+  if (user.catdog == "Cat") {
     var imSource = require("../assets/catadmin.jpg");
   } else {
     var imSource = require("../assets/dogadmin.jpg");

@@ -12,14 +12,14 @@ function AppRecordText({ children }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.darkGreen,
+    backgroundColor: colors.primary,
     padding: 10,
     borderRadius: 15,
     marginBottom: 5,
   },
   text: {
     marginLeft: 10,
-    fontSize: 18,
+    fontSize: 16,
     color: colors.white,
   },
 });

@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     padding: 10,
-    backgroundColor: colors.white,
+    backgroundColor: colors.bglight,
   },
   image: {
     width: 70,
@@ -45,9 +45,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "500",
+    color: colors.white,
   },
   subTitle: {
     color: colors.medium,
+    color: colors.white,
   },
   detailsContainer: {
     flex: 1,

@@ -9,14 +9,12 @@
     "splash": {
       "image": "./app/assets/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#dbf1ee"
+      "backgroundColor": "#063852"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "plugins": [
       [
         "expo-image-picker",
@@ -26,7 +24,12 @@
       ]
     ],
     "ios": {
-      "supportsTablet": true
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "supportsTablet": true,
+      "bundleIdentifier": "com.alikargarandehkordi.stand",
+      "buildNumber": "1.0.5"
     },
     "android": {
       "adaptiveIcon": {
