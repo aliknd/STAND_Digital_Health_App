@@ -7,6 +7,7 @@ import QuestionnaireScreen from "../screens/QuestionnaireScreen";
 import MessagesScreen from "../screens/MessagesScreen";
 import MessageDetailsScreen from "../screens/MessageDetailsScreen";
 import DownloadScreen from "../screens/DownloadScreen";
+import GameScreen1 from '../screens/StroopScreen';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ const RecordNavigator = () => (
     />
     <Stack.Screen name="Records" component={RecordScreen} />
     <Stack.Screen name="Downloads" component={DownloadScreen} />
+    <Stack.Screen name="Stroop" component={GameScreen1} />
     <Stack.Screen
       name="My Questionnaire"
       component={QuestionnaireScreen}
