@@ -54,6 +54,13 @@ function AccountScreen({ navigation }) {
           }
           onPress={() => navigation.navigate("Records")}
         />
+        <ListItem
+          title="Stroop Game"
+          IconComponent={
+            <Icon name="download-box" backgroundColor={colors.primary} />
+          }
+          onPress={() => navigation.navigate("Stroop")}
+        />
       </View>
       <View style={styles.container}>
         <FlatList
