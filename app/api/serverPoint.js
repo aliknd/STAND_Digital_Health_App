@@ -1,3 +1,3 @@
-const endpointURL = "http:///168.105.229.214:9000/api";
+const endpointURL = "http:///192.168.86.40:9000/api";
 
 export default endpointURL;

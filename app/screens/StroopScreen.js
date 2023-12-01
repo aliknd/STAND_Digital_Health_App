@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Camera, CameraType } from 'expo-camera';
+import * as MediaLibrary from 'expo-media-library';
 
 const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
 
@@ -14,6 +15,7 @@ const getShuffledColorsWithAnswer = (answer) => {
 };
 
 function GameScreen1() {
+  const cameraRef = useRef(null);
   const [textColor, setTextColor] = useState(getRandomColor());
   const [displayColor, setDisplayColor] = useState(getRandomColor());
   const [options, setOptions] = useState(getShuffledColorsWithAnswer(displayColor));
@@ -25,6 +27,8 @@ function GameScreen1() {
   const [preGameCountdown, setPreGameCountdown] = useState(3);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [videoUri, setVideoUri] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -39,6 +43,7 @@ function GameScreen1() {
       }, 1000);
     } else if (!isGameStarted) {
       setIsGameStarted(true);
+      startRecording();
     }
 
     let countdown = null;
@@ -50,6 +55,7 @@ function GameScreen1() {
             clearInterval(countdown);
             clearInterval(decisionCountdown);
             setIsGameOver(true);
+            stopRecording();
             return 0;
           } else {
             setTimerWidth((prevTimer - 1) / 30 * 100);
@@ -76,6 +82,29 @@ function GameScreen1() {
       if (preGameTimer) clearTimeout(preGameTimer);
     };
   }, [score, preGameCountdown, isGameStarted, isGameOver]);
+
+  const startRecording = async () => {
+    if (cameraRef.current) {
+      setIsRecording(true);
+      const video = await cameraRef.current.recordAsync();
+      setVideoUri(video.uri);
+    }
+  };
+
+  const stopRecording = () => {
+    if (cameraRef.current && isRecording) {
+      cameraRef.current.stopRecording();
+      setIsRecording(false);
+      saveVideo();
+    }
+  };
+
+  const saveVideo = async () => {
+    if (videoUri) {
+      const asset = await MediaLibrary.createAssetAsync(videoUri);
+      await MediaLibrary.createAlbumAsync("GameVideos", asset, false);
+    }
+  };
 
   const handlePress = (selectedColor) => {
     if (selectedColor === displayColor) {
@@ -133,6 +162,7 @@ function GameScreen1() {
             style={styles.preview}
             type={CameraType.front}
             ratio={"16:9"}
+            ref={cameraRef}
         >
           <View style={styles.overlay}>
             <View style={styles.timerBarContainer}>
