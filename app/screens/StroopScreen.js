@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
 import { Camera, CameraType } from 'expo-camera';
+//import { Video } from 'expo-av';
+//import { shareAsync } from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
 
 const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
@@ -15,7 +17,7 @@ const getShuffledColorsWithAnswer = (answer) => {
 };
 
 function GameScreen1() {
-  const cameraRef = useRef(null);
+  let cameraRef = useRef(null);
   const [textColor, setTextColor] = useState(getRandomColor());
   const [displayColor, setDisplayColor] = useState(getRandomColor());
   const [options, setOptions] = useState(getShuffledColorsWithAnswer(displayColor));
@@ -23,7 +25,9 @@ function GameScreen1() {
   const [timer, setTimer] = useState(30);
   const [timerWidth, setTimerWidth] = useState(100);
   const [decisionTime, setDecisionTime] = useState(5);
-  const [hasPermission, setHasPermission] = useState(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState();
+  const [hasMicrophonePermission, setHasMicrophonePermission] = useState();
+  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [preGameCountdown, setPreGameCountdown] = useState(3);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -32,8 +36,13 @@ function GameScreen1() {
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
+      const cameraPermission = await Camera.requestCameraPermissionsAsync();
+      const microphonePermission = await Camera.requestMicrophonePermissionsAsync();
+      const mediaLibraryPermission = await MediaLibrary.requestPermissionsAsync();
+
+      setHasCameraPermission(cameraPermission.status === "granted");
+      setHasMicrophonePermission(microphonePermission.status === "granted");
+      setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted");
     })();
 
     let preGameTimer = null;
@@ -43,7 +52,7 @@ function GameScreen1() {
       }, 1000);
     } else if (!isGameStarted) {
       setIsGameStarted(true);
-      startRecording();
+      //recordVideo();
     }
 
     let countdown = null;
@@ -55,12 +64,13 @@ function GameScreen1() {
             clearInterval(countdown);
             clearInterval(decisionCountdown);
             setIsGameOver(true);
-            stopRecording();
+            //stopRecording();
+            //askToSaveVideo(); // Ask to save video when the game is over
             return 0;
           } else {
             setTimerWidth((prevTimer - 1) / 30 * 100);
+            return prevTimer - 1;
           }
-          return prevTimer - 1;
         });
       }, 1000);
 
@@ -81,30 +91,83 @@ function GameScreen1() {
       if (decisionCountdown) clearInterval(decisionCountdown);
       if (preGameTimer) clearTimeout(preGameTimer);
     };
-  }, [score, preGameCountdown, isGameStarted, isGameOver]);
+  }, [isGameStarted, isGameOver, preGameCountdown, timer, score]);
 
-  const startRecording = async () => {
+  if (hasCameraPermission === undefined || hasMicrophonePermission === undefined || hasMediaLibraryPermission === undefined) {
+    return <View style={styles.centered}><Text>Requesting permissions...</Text></View>;
+  } else if (!hasCameraPermission || !hasMicrophonePermission || !hasMediaLibraryPermission) {
+    return <View style={styles.centered}><Text>Permission not granted.</Text></View>;
+  }
+
+  /*const recordVideo = async () => {
+    console.log("Trying to start recording...");
     if (cameraRef.current) {
+      console.log("Camera reference is set");
       setIsRecording(true);
-      const video = await cameraRef.current.recordAsync();
-      setVideoUri(video.uri);
+      let options = {
+        quality: "1080p",
+        maxDuration: 60,
+        mute: false
+      };
+
+      try {
+        const video = await cameraRef.current.recordAsync(options);
+        console.log("Recording completed. Video URI: ", video.uri);
+        setVideoUri(video.uri);
+        setIsRecording(false);
+      } catch (error) {
+        console.error("Error during recording: ", error);
+        setIsRecording(false);
+      }
+    } else {
+      console.log("Camera reference is not set");
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
+    console.log("Trying to stop recording...");
     if (cameraRef.current && isRecording) {
       cameraRef.current.stopRecording();
+      console.log("Stopped recording.");
       setIsRecording(false);
-      saveVideo();
+      saveVideo(); // Automatically save the video
+    } else {
+      console.log("Recording was not in progress or camera reference is not set.");
     }
   };
 
   const saveVideo = async () => {
     if (videoUri) {
-      const asset = await MediaLibrary.createAssetAsync(videoUri);
-      await MediaLibrary.createAlbumAsync("GameVideos", asset, false);
+      await MediaLibrary.saveToLibraryAsync(videoUri)
+          .then(() => {
+            console.log("Video saved successfully!");
+          })
+          .catch(error => {
+            console.error("Error saving video:", error);
+          });
     }
   };
+
+  const askToSaveVideo = () => {
+    const buttons = [
+      {
+        text: "Cancel",
+        onPress: () => console.log("User canceled saving video"),
+        style: "cancel"
+      }
+    ];
+
+    if (hasMediaLibraryPermission) {
+      buttons.push({ text: "Save", onPress: () => saveVideo() });
+    }
+
+    Alert.alert(
+        "Save Recording",
+        "Do you want to save the game recording?",
+        buttons,
+        { cancelable: false }
+    );
+  };*/
 
   const handlePress = (selectedColor) => {
     if (selectedColor === displayColor) {
@@ -129,14 +192,6 @@ function GameScreen1() {
     setTimerWidth(100);
     setDecisionTime(5);
   };
-
-  if (hasPermission === null) {
-    return <View />;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
-
   if (!isGameStarted) {
     return (
         <View style={styles.centered}>
@@ -157,39 +212,45 @@ function GameScreen1() {
   }
 
   return (
-      <View style={styles.container}>
-        <Camera
-            style={styles.preview}
-            type={CameraType.front}
-            ratio={"16:9"}
-            ref={cameraRef}
-        >
-          <View style={styles.overlay}>
-            <View style={styles.timerBarContainer}>
-              <View style={[styles.timerBar, { width: `${timerWidth}%` }]}></View>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <Camera
+              style={styles.preview}
+              type={CameraType.front}
+              ratio={"16:9"}
+              ref={cameraRef}
+          >
+            <View style={styles.overlay}>
+              <View style={styles.timerBarContainer}>
+                <View style={[styles.timerBar, { width: `${timerWidth}%` }]}></View>
+              </View>
+              <View style={styles.scoreContainer}>
+                <Text style={styles.scoreText}>Score: {score}</Text>
+                <Text style={styles.timerText}>Time: {timer}s</Text>
+                <Text style={styles.decisionTimerText}>Answer in: {decisionTime}s</Text>
+              </View>
+              <View style={styles.centered}>
+                <Text style={[styles.text, { color: displayColor }]}>{textColor}</Text>
+              </View>
+              <View style={styles.optionsContainer}>
+                {options.map((color) => (
+                    <TouchableOpacity key={color} style={[styles.button]} onPress={() => handlePress(color)}>
+                      <Text style={styles.buttonText}>{color}</Text>
+                    </TouchableOpacity>
+                ))}
+              </View>
             </View>
-            <View style={styles.scoreContainer}>
-              <Text style={styles.scoreText}>Score: {score}</Text>
-              <Text style={styles.timerText}>Time: {timer}s</Text>
-              <Text style={styles.decisionTimerText}>Answer in: {decisionTime}s</Text>
-            </View>
-            <View style={styles.centered}>
-              <Text style={[styles.text, { color: displayColor }]}>{textColor}</Text>
-            </View>
-            <View style={styles.optionsContainer}>
-              {options.map((color) => (
-                  <TouchableOpacity key={color} style={[styles.button]} onPress={() => handlePress(color)}>
-                    <Text style={styles.buttonText}>{color}</Text>
-                  </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </Camera>
-      </View>
+          </Camera>
+        </View>
+      </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
   container: {
     flex: 1,
     backgroundColor: 'transparent',
@@ -236,7 +297,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   text: {
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: 'bold',
   },
   scoreContainer: {
@@ -277,19 +338,17 @@ const styles = StyleSheet.create({
     height: 120,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 0,
     margin: 5,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
+    backgroundColor: 'transparent',
+    borderColor: 'black',
+    borderWidth: 2,
+    borderRadius: 10,
+    elevation: 5,
   },
   buttonText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: 'white',
   },
 });
-
 export default GameScreen1;
