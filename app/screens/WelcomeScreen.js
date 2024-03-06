@@ -13,17 +13,18 @@ function WelcomeScreen({ navigation }) {
       source={require("../assets/background.jpg")}
     >
       <View style={styles.logoContainer}>
-        <Image style={styles.logo} source={require("../assets/logo.png")} />
+        <Image style={styles.logo} source={require("../assets/logo.png")}/>
       </View>
 
       <View style={styles.buttonsContainer}>
         <AppButton
           title="Login"
+          color="grey"
           onPress={() => navigation.navigate(routes.LOGIN)}
         />
         <AppButton
           title="Register"
-          color="secondary"
+          color="brown"
           onPress={() => navigation.navigate(routes.REGISTER)}
         />
       </View>
@@ -44,6 +45,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 200,
     height: 120,
+    margin: 200,
   },
   logoContainer: {
     position: "absolute",

@@ -1,9 +1,37 @@
+//<script src="config/AWSconfig.js"></script>
+import { AWSconfig } from '../../config/AWSconfig';
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
 import { Camera, CameraType } from 'expo-camera';
-//import { Video } from 'expo-av';
-//import { shareAsync } from 'expo-sharing';
+// import { Video } from 'expo-av';
+// import { shareAsync } from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
+import { FlatList } from 'react-native-gesture-handler';
+import AWS from 'aws-sdk';
+import { Audio } from 'expo-av';
+
+AWS.config.update({
+  accessKeyId: AWSconfig.ACCESS_KEY_ID,
+  secretAccessKey: AWSconfig.SECRET_ACCESS_KEY,
+  region: AWSconfig.REGION
+});
+
+const s3 = new AWS.S3();
+
+const uploadFileToS3 = (bucketName, fileName, filePath, uri) => {
+  const params = {
+    // Bucket: bucketName,
+    Bucket: "standhealth",
+    Key: fileName,
+    Body: filePath,
+    //Body: uri,
+    ACL: 'public-read',
+    ContentType: 'video/mp4',
+    // ContentType: 'video/quicktime',
+  }
+
+  return s3.upload(params).promise();
+};
 
 const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
 
@@ -17,7 +45,7 @@ const getShuffledColorsWithAnswer = (answer) => {
 };
 
 function GameScreen1() {
-  let cameraRef = useRef(null);
+  // let cameraRef = useRef();
   const [textColor, setTextColor] = useState(getRandomColor());
   const [displayColor, setDisplayColor] = useState(getRandomColor());
   const [options, setOptions] = useState(getShuffledColorsWithAnswer(displayColor));
@@ -28,21 +56,27 @@ function GameScreen1() {
   const [hasCameraPermission, setHasCameraPermission] = useState();
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
+  const [hasAudioPermission, setHasAudioPermission] = useState();
   const [preGameCountdown, setPreGameCountdown] = useState(3);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [video, setVideo] = useState();
   const [videoUri, setVideoUri] = useState(null);
+  const [firstStart, setFirstStart] = useState(true);
+  const [cameraRef, setCameraRef] = useState(null);
 
   useEffect(() => {
     (async () => {
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
       const microphonePermission = await Camera.requestMicrophonePermissionsAsync();
       const mediaLibraryPermission = await MediaLibrary.requestPermissionsAsync();
+      const audioPermission = await Audio.requestPermissionsAsync(); 
 
       setHasCameraPermission(cameraPermission.status === "granted");
       setHasMicrophonePermission(microphonePermission.status === "granted");
       setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted");
+      setHasAudioPermission(audioPermission.status === "granted");
     })();
 
     let preGameTimer = null;
@@ -53,6 +87,10 @@ function GameScreen1() {
     } else if (!isGameStarted) {
       setIsGameStarted(true);
       //recordVideo();
+    } else if (isGameStarted && firstStart && !isRecording) {
+      setFirstStart(false);
+      //recordVideo();
+      askToStartRecording();
     }
 
     let countdown = null;
@@ -64,8 +102,7 @@ function GameScreen1() {
             clearInterval(countdown);
             clearInterval(decisionCountdown);
             setIsGameOver(true);
-            //stopRecording();
-            //askToSaveVideo(); // Ask to save video when the game is over
+            askToUploadVideo(); // Ask to save video when the game is over
             return 0;
           } else {
             setTimerWidth((prevTimer - 1) / 30 * 100);
@@ -99,75 +136,220 @@ function GameScreen1() {
     return <View style={styles.centered}><Text>Permission not granted.</Text></View>;
   }
 
-  /*const recordVideo = async () => {
-    console.log("Trying to start recording...");
-    if (cameraRef.current) {
-      console.log("Camera reference is set");
+  // original location of recordVideo
+  // if (firstStart) {
+  //   let recordVideo = () => {
+  //     console.log("Starting recording");
+  //     // cameraRef.current.resumePreview(); // we added this
+  //     setIsRecording(true);
+  //     let options = {
+  //       quality: "1080p",
+  //       maxDuration: 60,
+  //       mute: false,
+  //       videoCodec: Camera.Constants.VideoCodec.H264,
+  //     };
+
+  //     cameraRef.current.recordAsync(options).then((recordedVideo) => {
+  //       console.log("Setting recorded video.");
+  //       setVideo(recordedVideo);
+  //       setVideoUri(recordedVideo.uri);
+  //       setIsRecording(false);
+  //     });
+  //   };
+  // }
+
+  const recordVideo = async () => {
+    if (cameraRef) {
       setIsRecording(true);
       let options = {
         quality: "1080p",
         maxDuration: 60,
-        mute: false
+        mute: false,
+        videoCodec: Camera.Constants.VideoCodec.H264,
       };
+      try{
+        let video = await cameraRef.recordAsync(options);
+      } catch (error) {
+        console.log("error", error);
+      }
+      console.log('video', video);
+      setVideo(video);
+      setVideoUri(video.uri);
+    }
+  }
+
+  // // const recordVideo = async () => { 
+  // //   try {
+  // //     console.log("Starting recording");
+  // //     setIsRecording(true);
+
+  // //     let options = {
+  // //       quality: "1080p",
+  // //       maxDuration: 60,
+  // //       mute: false,
+  // //       videoCodec: Camera.Constants.VideoCodec.H264,
+  // //     };
+      
+  // //     const recordedVideo = await new Promise((resolve, reject) => {
+  // //       cameraRef.current.recordAsync(options)
+  // //         .then((result) => {
+  // //           console.log("Setting recorded video.");
+  // //           // Introduce a delay using setTimeout
+  // //           setTimeout(() => {
+  // //             resolve(result);
+  // //           }, 30000); // Adjust the duration as needed
+  // //         })
+  // //         .catch(reject);
+  // //     });
+      
+  // //     console.log("after recordasync");
+  // //     setVideo(recordedVideo);
+  // //     setVideoUri(recordedVideo.uri);
+  // //   } catch (error) {
+  // //     console.error("Error recording video:", error);
+  // //   } finally {
+  // //     setIsRecording(false);
+  // //   }
+  // // };
+
+  // const recordVideo = async () => {
+  //   if (!isRecording) {
+  //     console.log("Starting recording");
+  //     cameraRef.current.resumePreview(); // we added this
+  //     setIsRecording(true);
+  //     let options = {
+  //       quality: "1080p",
+  //       maxDuration: 60,
+  //       mute: false,
+  //       videoCodec: Camera.Constants.VideoCodec.H264,
+  //     };
+
+  //     await cameraRef.current.recordAsync(options).then((recordedVideo) => {
+  //       console.log("Setting recorded video.");
+  //       setVideo(recordedVideo);
+  //       setVideoUri(recordedVideo.uri);
+  //       setIsRecording(false);
+  //     });
+      // try {
+      //   console.log("setting recorded video 1");
+      //   const recordedVideo = await Ref.current.recordAsync(options);
+      //   console.log("setting recorded video 2");
+      //   setVideo(recordedVideo);
+      //   setVideoUri(recordedVideo.uri);
+      // } catch (error) {
+      //   console.error("Error recording video:", error);
+      // } finally {
+      //   setIsRecording(false);
+      // }
+    // }
+  // };
+
+  // const stopRecord = async () => {
+  //   console.log('stop record')
+  //   let endVideo = await cam.stopRecording()
+  //   console.log('end video', endVideo)
+  //   setRecord(false)
+  // }
+
+  const stopRecord = () => {
+    console.log("stopping recording1");
+    if (cameraRef) {
+      console.log("camera ref" + cameraRef);
+      console.log("Trying to stop recording...");
+      //let endVideo = await cameraRef.current.stopRecording();
+      try { 
+        cameraRef.stopRecording();
+      } catch (error) {
+        console.log('error', error);
+      }
+      console.log("after stop recording");
+      //console.log('Stopped recording', endVideo);
+      setIsRecording(false);
+    }
+  }
+
+  // let stopRecording = async () => {
+  //   console.log("Trying to stop recording...");
+  //   if (isRecording) {
+  //     console.log("Stopped recording");
+  //     setIsRecording(false);
+  //     cameraRef.current.stopRecording();
+  //   }
+  // };
+
+  // let stopRecording = () => {
+  //   console.log("in stopRecording");
+  //   setIsRecording(false);
+  //   cameraRef.current.stopRecording();
+  // };
+
+  let uploadVideo = async () => {
+    console.log("in upload video function");
+    console.log("videoUri " + videoUri);
+    if (videoUri) {
+      console.log("video uri: " + videoUri);
+      const filePath = videoUri.replace('file://', '');
+      const bucketName = "standhealth";
+      const fileName = "ki";
 
       try {
-        const video = await cameraRef.current.recordAsync(options);
-        console.log("Recording completed. Video URI: ", video.uri);
-        setVideoUri(video.uri);
-        setIsRecording(false);
+        console.log("bucketName:" + bucketName);
+        console.log("filename:" + fileName);
+        console.log("filePath:" + filePath);
+
+        // await uploadFileToS3(bucketName, fileName, fileData);
+        await uploadFileToS3(bucketName, fileName, filePath, videoUri);
+        console.log("File uploaded", fileName);
       } catch (error) {
-        console.error("Error during recording: ", error);
-        setIsRecording(false);
+        console.log("Error uploading file: ", error);
       }
-    } else {
-      console.log("Camera reference is not set");
     }
   };
 
-  const stopRecording = async () => {
-    console.log("Trying to stop recording...");
-    if (cameraRef.current && isRecording) {
-      cameraRef.current.stopRecording();
-      console.log("Stopped recording.");
-      setIsRecording(false);
-      saveVideo(); // Automatically save the video
-    } else {
-      console.log("Recording was not in progress or camera reference is not set.");
-    }
-  };
+  const askToStartRecording = () => {
+    const buttons = [
+      {
+        text: "Record",
+        onPress: () => recordVideo()
+      }
+    ];
 
-  const saveVideo = async () => {
-    if (videoUri) {
-      await MediaLibrary.saveToLibraryAsync(videoUri)
-          .then(() => {
-            console.log("Video saved successfully!");
-          })
-          .catch(error => {
-            console.error("Error saving video:", error);
-          });
-    }
-  };
+    Alert.alert(
+      "Start Recording",
+      "Do you want to start recording?",
+      buttons,
+      { cancelable: false }
+    );
+  }
 
-  const askToSaveVideo = () => {
+
+  const askToUploadVideo = () => {
+    stopRecord();
     const buttons = [
       {
         text: "Cancel",
-        onPress: () => console.log("User canceled saving video"),
+        onPress: () => console.log("User canceled uploading video"),
         style: "cancel"
       }
     ];
 
     if (hasMediaLibraryPermission) {
-      buttons.push({ text: "Save", onPress: () => saveVideo() });
+      buttons.push({ text: "Upload", onPress: () => uploadVideo() });
     }
 
     Alert.alert(
-        "Save Recording",
-        "Do you want to save the game recording?",
-        buttons,
-        { cancelable: false }
+      "Upload Recording",
+      "Do you want to upload the game recording?",
+      buttons,
+      { cancelable: false }
     );
-  };*/
+  };
+
+  const renderButton = ({ item }) => (
+    <TouchableOpacity style={styles.button} onPress={() => handlePress(item)}>
+      <Text style={styles.buttonText}>{item}</Text>
+    </TouchableOpacity>
+  );
 
   const handlePress = (selectedColor) => {
     if (selectedColor === displayColor) {
@@ -194,81 +376,90 @@ function GameScreen1() {
   };
   if (!isGameStarted) {
     return (
-        <View style={styles.centered}>
-          <Text style={styles.countdownText}>Game starts in: {preGameCountdown}</Text>
-        </View>
+      <View style={styles.centered}>
+        <Text style={styles.countdownText}>Game starts in: {preGameCountdown}</Text>
+      </View>
     );
   }
 
   if (isGameOver) {
     return (
-        <View style={styles.centered}>
-          <Text style={styles.finalScoreText}>Final Score: {score}</Text>
-          <TouchableOpacity style={styles.restartButton} onPress={restartGame}>
-            <Text style={styles.restartButtonText}>Restart Game</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.centered}>
+        <Text style={styles.finalScoreText}>Final Score: {score}</Text>
+        <TouchableOpacity style={styles.restartButton} onPress={restartGame}>
+          <Text style={styles.restartButtonText}>Restart Game</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 
   return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <Camera
-              style={styles.preview}
-              type={CameraType.front}
-              ratio={"16:9"}
-              ref={cameraRef}
-          >
-            <View style={styles.overlay}>
-              <View style={styles.timerBarContainer}>
-                <View style={[styles.timerBar, { width: `${timerWidth}%` }]}></View>
-              </View>
-              <View style={styles.scoreContainer}>
-                <Text style={styles.scoreText}>Score: {score}</Text>
-                <Text style={styles.timerText}>Time: {timer}s</Text>
-                <Text style={styles.decisionTimerText}>Answer in: {decisionTime}s</Text>
-              </View>
-              <View style={styles.centered}>
-                <Text style={[styles.text, { color: displayColor }]}>{textColor}</Text>
-              </View>
-              <View style={styles.optionsContainer}>
-                {options.map((color) => (
-                    <TouchableOpacity key={color} style={[styles.button]} onPress={() => handlePress(color)}>
-                      <Text style={styles.buttonText}>{color}</Text>
-                    </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          </Camera>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Camera
+          style={styles.preview}
+          type={CameraType.front}
+          // ratio={"16:9"} only on android
+          ref={(ref)=>setCameraRef(ref)}
+        >
+        </Camera>
+        <View style={styles.overlay}>
+          <View style={styles.timerBarContainer}>
+            <View style={[styles.timerBar, { width: `${timerWidth}%` }]}></View>
+          </View>
+          <View style={styles.scoreContainer}>
+            <Text style={styles.scoreText}>Score: {score}</Text>
+            <Text style={styles.timerText}>Time: {timer}s</Text>
+            <Text style={styles.decisionTimerText}>Answer in: {decisionTime}s</Text>
+          </View>
+          <View style={styles.centered}>
+            <Text style={[styles.text, { color: displayColor }]}>{textColor}</Text>
+          </View>
+          <View style={styles.optionsContainer}>
+            <FlatList
+              data={options}
+              numColumns={2} // Set the number of columns
+              keyExtractor={(item) => item}
+              renderItem={renderButton}
+            />
+          </View>
         </View>
-      </SafeAreaView>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: 'gray',
   },
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+    flexDirection: 'row',
   },
   preview: {
     position: 'absolute',
-    top: 0,
-    left: 0,
+    top: 60,
+    left: 20,
     bottom: 0,
     right: 0,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    width: "25%",
+    height: "25%",
   },
   overlay: {
     flex: 1,
     justifyContent: 'center',
     backgroundColor: 'transparent',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   centered: {
     flex: 1,
@@ -328,12 +519,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
   },
   optionsContainer: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     padding: 20,
+    marginBottom: 70,
   },
   button: {
+    flex: 1,
+    flexDirection: 'row',
     width: '47%',
     height: 120,
     justifyContent: 'center',

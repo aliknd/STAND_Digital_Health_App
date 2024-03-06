@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "STAND",
-    "slug": "STAND",
+    "slug": "stand",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./app/assets/icon.png",
@@ -12,15 +12,18 @@
       "backgroundColor": "#063852"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/18198755-4866-43dd-85be-3341a6563e9a"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "plugins": [
       [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
-        },
+        }
       ],
       [
         "expo-camera",
@@ -30,9 +33,6 @@
       ]
     ],
     "ios": {
-      "config": {
-        "usesNonExemptEncryption": false
-      },
       "supportsTablet": true,
       "bundleIdentifier": "com.alikargarandehkordi.stand",
       "buildNumber": "1.0.5"
@@ -58,8 +58,11 @@
     "description": "An EMA App to screen the stress and anxiety!",
     "extra": {
       "eas": {
-        "projectId": "b7e7417c-cc85-4110-8307-1335ede2aabb"
+        "projectId": "18198755-4866-43dd-85be-3341a6563e9a"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }
