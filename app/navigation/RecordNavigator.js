@@ -8,6 +8,7 @@ import MessagesScreen from "../screens/MessagesScreen";
 import MessageDetailsScreen from "../screens/MessageDetailsScreen";
 import DownloadScreen from "../screens/DownloadScreen";
 import GameScreen1 from '../screens/StroopScreen';
+import LeaderboardScreen from "../screens/LeaderboardScreen";
 
 const Stack = createStackNavigator();
 
@@ -21,6 +22,7 @@ const RecordNavigator = () => (
     <Stack.Screen name="Records" component={RecordScreen} />
     <Stack.Screen name="Downloads" component={DownloadScreen} />
     <Stack.Screen name="Stroop" component={GameScreen1} />
+      <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
     <Stack.Screen
       name="My Questionnaire"
       component={QuestionnaireScreen}

@@ -42,6 +42,11 @@ function AccountScreen({ navigation }) {
           subTitle={user.badge.toString()}
           image={require("../assets/star.png")}
         />
+          <ListItem
+              title="Leaderboard"
+              image={require("../assets/leaderboard.png")}
+              onPress={() => navigation.navigate("Leaderboard")}
+          />
       </View>
       <View style={styles.container}>
         <ListItem

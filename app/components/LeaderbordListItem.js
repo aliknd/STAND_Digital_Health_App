@@ -1,33 +1,21 @@
 import React from "react";
-import { View, StyleSheet, Image, TouchableHighlight } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-
+import { View, StyleSheet, Image } from "react-native";
 import colors from "../config/colors";
 import AppText from "./AppText";
 
-function ListItem({ title, subTitle, image, IconComponent, onPress }) {
+function LeaderboardListItem({ name, score, image }) {
   return (
-    <TouchableHighlight underlayColor={colors.lightGray} onPress={onPress}>
       <View style={styles.container}>
-        {IconComponent}
-        {image && <Image style={styles.image} source={image} />}
+        <Image style={styles.image} source={image} />
         <View style={styles.detailsContainer}>
           <AppText style={styles.title} numberOfLines={1}>
-            {title}
+            {name}
           </AppText>
-          {subTitle && (
-            <AppText style={styles.subTitle} numberOfLines={2}>
-              {subTitle}
-            </AppText>
-          )}
         </View>
-        <MaterialCommunityIcons
-          color={colors.medium}
-          name="chevron-right"
-          size={25}
-        />
+        <AppText style={styles.title} numberOfLines={1}>
+          {score}
+        </AppText>
       </View>
-    </TouchableHighlight>
   );
 }
 
@@ -57,4 +45,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ListItem;
+export default LeaderboardListItem;

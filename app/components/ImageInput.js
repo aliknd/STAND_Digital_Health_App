@@ -50,7 +50,6 @@ function ImageInput({ imageUri, onChangeImage }) {
   const selectImageCamera = async () => {
     try {
       const result = await ImagePicker.launchCameraAsync({
-        quality: 0.5,
         allowsEditing: true,
         base64: true,
         quality: 1,
