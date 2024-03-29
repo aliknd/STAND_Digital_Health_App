@@ -3,7 +3,7 @@ import {FlatList, StyleSheet, Text} from "react-native";
 import ListItem from "../components/ListItem";
 import ListItemSeparator from "../components/ListItemSeparator";
 import Screen from "../components/Screen";
-import Leaderboard from "../components/Leaderbord";
+import Leaderboard from "../components/Leaderboard";
 import colors from "../config/colors";
 
 

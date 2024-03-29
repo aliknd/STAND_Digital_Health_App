@@ -1,13 +1,29 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {View, StyleSheet, Image, TouchableHighlight, Text, FlatList} from "react-native";
-import { Data } from '../../config/Database';
 import LeaderboardListItem from "./LeaderbordListItem";
 import colors from "../config/colors";
 import ListItem from "./ListItem";
 import Icon from "./Icon";
+import endpointURL from "../api/serverPoint";
+import useAuth from "../auth/useAuth";
 
 function Leaderboard() {
-  const sortedData = Data.sort((a, b) => b.score - a.score);
+  const [data, setData] = useState([]);
+  const getUsers = async () => {
+    try {
+      const response = await fetch(endpointURL + "/users");
+      const json = await response.json();
+      setData(json);
+      console.log("fetched users");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const sortedData = data.sort((a, b) => b.highScore - a.highScore);
+
+  useEffect(() => {
+    getUsers();
+  }, []);
 
   return (
       <FlatList
@@ -16,8 +32,8 @@ function Leaderboard() {
           renderItem={({ item }) => (
               <LeaderboardListItem
                   name={item.name}
-                  image={item.image}
-                  score={item.score}
+                  image={item.catdog.toLowerCase() === 'dog' ? require("..//assets/doguser.png") : require("..//assets/catuser.png")}
+                  score={item.highScore}
               />
           )}
       />

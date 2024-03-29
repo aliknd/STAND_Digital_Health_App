@@ -9,6 +9,10 @@ import * as MediaLibrary from 'expo-media-library';
 import { FlatList } from 'react-native-gesture-handler';
 import AWS from 'aws-sdk';
 import { Audio } from 'expo-av';
+import endpointURL from "../api/serverPoint";
+import useAuth from "../auth/useAuth";
+import useApi from "../hooks/useApi";
+import usersApi from "../api/users";
 
 AWS.config.update({
   accessKeyId: AWSconfig.ACCESS_KEY_ID,
@@ -65,8 +69,19 @@ function GameScreen1() {
   const [videoUri, setVideoUri] = useState(null);
   const [firstStart, setFirstStart] = useState(true);
   const [cameraRef, setCameraRef] = useState(null);
+  const [isCountingDown, setIsCountingDown] = useState(false);
+  const { user } = useAuth();
+  const scoreApi = useApi(usersApi.updateScore);
 
-  useEffect(() => {
+  const updateScore = async (id, scoreToAdd) => {
+    console.log(scoreToAdd);
+    console.log(id);
+    const result = await scoreApi.request(id, scoreToAdd);
+    console.log(result);
+    return;
+  }
+
+    useEffect(() => {
     (async () => {
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
       const microphonePermission = await Camera.requestMicrophonePermissionsAsync();
@@ -91,6 +106,8 @@ function GameScreen1() {
       setFirstStart(false);
       //recordVideo();
       askToStartRecording();
+    } else if (isGameOver && timer == 0) {
+      updateScore(user.userId, score);
     }
 
     let countdown = null;
@@ -136,28 +153,6 @@ function GameScreen1() {
     return <View style={styles.centered}><Text>Permission not granted.</Text></View>;
   }
 
-  // original location of recordVideo
-  // if (firstStart) {
-  //   let recordVideo = () => {
-  //     console.log("Starting recording");
-  //     // cameraRef.current.resumePreview(); // we added this
-  //     setIsRecording(true);
-  //     let options = {
-  //       quality: "1080p",
-  //       maxDuration: 60,
-  //       mute: false,
-  //       videoCodec: Camera.Constants.VideoCodec.H264,
-  //     };
-
-  //     cameraRef.current.recordAsync(options).then((recordedVideo) => {
-  //       console.log("Setting recorded video.");
-  //       setVideo(recordedVideo);
-  //       setVideoUri(recordedVideo.uri);
-  //       setIsRecording(false);
-  //     });
-  //   };
-  // }
-
   const recordVideo = async () => {
     if (cameraRef) {
       setIsRecording(true);
@@ -178,78 +173,6 @@ function GameScreen1() {
     }
   }
 
-  // // const recordVideo = async () => { 
-  // //   try {
-  // //     console.log("Starting recording");
-  // //     setIsRecording(true);
-
-  // //     let options = {
-  // //       quality: "1080p",
-  // //       maxDuration: 60,
-  // //       mute: false,
-  // //       videoCodec: Camera.Constants.VideoCodec.H264,
-  // //     };
-      
-  // //     const recordedVideo = await new Promise((resolve, reject) => {
-  // //       cameraRef.current.recordAsync(options)
-  // //         .then((result) => {
-  // //           console.log("Setting recorded video.");
-  // //           // Introduce a delay using setTimeout
-  // //           setTimeout(() => {
-  // //             resolve(result);
-  // //           }, 30000); // Adjust the duration as needed
-  // //         })
-  // //         .catch(reject);
-  // //     });
-      
-  // //     console.log("after recordasync");
-  // //     setVideo(recordedVideo);
-  // //     setVideoUri(recordedVideo.uri);
-  // //   } catch (error) {
-  // //     console.error("Error recording video:", error);
-  // //   } finally {
-  // //     setIsRecording(false);
-  // //   }
-  // // };
-
-  // const recordVideo = async () => {
-  //   if (!isRecording) {
-  //     console.log("Starting recording");
-  //     cameraRef.current.resumePreview(); // we added this
-  //     setIsRecording(true);
-  //     let options = {
-  //       quality: "1080p",
-  //       maxDuration: 60,
-  //       mute: false,
-  //       videoCodec: Camera.Constants.VideoCodec.H264,
-  //     };
-
-  //     await cameraRef.current.recordAsync(options).then((recordedVideo) => {
-  //       console.log("Setting recorded video.");
-  //       setVideo(recordedVideo);
-  //       setVideoUri(recordedVideo.uri);
-  //       setIsRecording(false);
-  //     });
-      // try {
-      //   console.log("setting recorded video 1");
-      //   const recordedVideo = await Ref.current.recordAsync(options);
-      //   console.log("setting recorded video 2");
-      //   setVideo(recordedVideo);
-      //   setVideoUri(recordedVideo.uri);
-      // } catch (error) {
-      //   console.error("Error recording video:", error);
-      // } finally {
-      //   setIsRecording(false);
-      // }
-    // }
-  // };
-
-  // const stopRecord = async () => {
-  //   console.log('stop record')
-  //   let endVideo = await cam.stopRecording()
-  //   console.log('end video', endVideo)
-  //   setRecord(false)
-  // }
 
   const stopRecord = () => {
     console.log("stopping recording1");
@@ -267,21 +190,6 @@ function GameScreen1() {
       setIsRecording(false);
     }
   }
-
-  // let stopRecording = async () => {
-  //   console.log("Trying to stop recording...");
-  //   if (isRecording) {
-  //     console.log("Stopped recording");
-  //     setIsRecording(false);
-  //     cameraRef.current.stopRecording();
-  //   }
-  // };
-
-  // let stopRecording = () => {
-  //   console.log("in stopRecording");
-  //   setIsRecording(false);
-  //   cameraRef.current.stopRecording();
-  // };
 
   let uploadVideo = async () => {
     console.log("in upload video function");
@@ -374,6 +282,7 @@ function GameScreen1() {
     setTimerWidth(100);
     setDecisionTime(5);
   };
+
   if (!isGameStarted) {
     return (
       <View style={styles.centered}>
