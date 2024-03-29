@@ -29,7 +29,7 @@ function Leaderboard() {
       <FlatList
           data={sortedData}
           keyExtractor={(menuItem) => menuItem.id}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
               <LeaderboardListItem
                   name={item.name}
                   image={item.catdog.toLowerCase() === 'dog' ? require("..//assets/doguser.png") : require("..//assets/catuser.png")}

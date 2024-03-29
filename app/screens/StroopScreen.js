@@ -86,7 +86,7 @@ function GameScreen1() {
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
       const microphonePermission = await Camera.requestMicrophonePermissionsAsync();
       const mediaLibraryPermission = await MediaLibrary.requestPermissionsAsync();
-      const audioPermission = await Audio.requestPermissionsAsync(); 
+      const audioPermission = await Audio.requestPermissionsAsync();
 
       setHasCameraPermission(cameraPermission.status === "granted");
       setHasMicrophonePermission(microphonePermission.status === "granted");
@@ -162,7 +162,7 @@ function GameScreen1() {
         mute: false,
         videoCodec: Camera.Constants.VideoCodec.H264,
       };
-      try{
+      try {
         let video = await cameraRef.recordAsync(options);
       } catch (error) {
         console.log("error", error);
@@ -173,14 +173,13 @@ function GameScreen1() {
     }
   }
 
-
   const stopRecord = () => {
     console.log("stopping recording1");
     if (cameraRef) {
       console.log("camera ref" + cameraRef);
       console.log("Trying to stop recording...");
       //let endVideo = await cameraRef.current.stopRecording();
-      try { 
+      try {
         cameraRef.stopRecording();
       } catch (error) {
         console.log('error', error);
@@ -223,10 +222,10 @@ function GameScreen1() {
     ];
 
     Alert.alert(
-      "Start Recording",
-      "Do you want to start recording?",
-      buttons,
-      { cancelable: false }
+        "Start Recording",
+        "Do you want to start recording?",
+        buttons,
+        {cancelable: false}
     );
   }
 
@@ -242,21 +241,21 @@ function GameScreen1() {
     ];
 
     if (hasMediaLibraryPermission) {
-      buttons.push({ text: "Upload", onPress: () => uploadVideo() });
+      buttons.push({text: "Upload", onPress: () => uploadVideo()});
     }
 
     Alert.alert(
-      "Upload Recording",
-      "Do you want to upload the game recording?",
-      buttons,
-      { cancelable: false }
+        "Upload Recording",
+        "Do you want to upload the game recording?",
+        buttons,
+        {cancelable: false}
     );
   };
 
-  const renderButton = ({ item }) => (
-    <TouchableOpacity style={styles.button} onPress={() => handlePress(item)}>
-      <Text style={styles.buttonText}>{item}</Text>
-    </TouchableOpacity>
+  const renderButton = ({item}) => (
+      <TouchableOpacity style={styles.button} onPress={() => handlePress(item)}>
+        <Text style={styles.buttonText}>{item}</Text>
+      </TouchableOpacity>
   );
 
   const handlePress = (selectedColor) => {
@@ -285,56 +284,60 @@ function GameScreen1() {
 
   if (!isGameStarted) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.countdownText}>Game starts in: {preGameCountdown}</Text>
-      </View>
+        <View style={styles.centered}>
+          <Text style={styles.countdownText}>Game starts in: {preGameCountdown}</Text>
+        </View>
     );
   }
 
   if (isGameOver) {
+    // current = fetchCurrentScore()
+    // if (current < score) {
+    //   sendScore();
+    // }
     return (
-      <View style={styles.centered}>
-        <Text style={styles.finalScoreText}>Final Score: {score}</Text>
-        <TouchableOpacity style={styles.restartButton} onPress={restartGame}>
-          <Text style={styles.restartButtonText}>Restart Game</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.centered}>
+          <Text style={styles.finalScoreText}>Final Score: {score}</Text>
+          <TouchableOpacity style={styles.restartButton} onPress={restartGame}>
+            <Text style={styles.restartButtonText}>Restart Game</Text>
+          </TouchableOpacity>
+        </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Camera
-          style={styles.preview}
-          type={CameraType.front}
-          // ratio={"16:9"} only on android
-          ref={(ref)=>setCameraRef(ref)}
-        >
-        </Camera>
-        <View style={styles.overlay}>
-          <View style={styles.timerBarContainer}>
-            <View style={[styles.timerBar, { width: `${timerWidth}%` }]}></View>
-          </View>
-          <View style={styles.scoreContainer}>
-            <Text style={styles.scoreText}>Score: {score}</Text>
-            <Text style={styles.timerText}>Time: {timer}s</Text>
-            <Text style={styles.decisionTimerText}>Answer in: {decisionTime}s</Text>
-          </View>
-          <View style={styles.centered}>
-            <Text style={[styles.text, { color: displayColor }]}>{textColor}</Text>
-          </View>
-          <View style={styles.optionsContainer}>
-            <FlatList
-              data={options}
-              numColumns={2} // Set the number of columns
-              keyExtractor={(item) => item}
-              renderItem={renderButton}
-            />
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <Camera
+              style={styles.preview}
+              type={CameraType.front}
+              // ratio={"16:9"} only on android
+              ref={(ref) => setCameraRef(ref)}
+          >
+          </Camera>
+          <View style={styles.overlay}>
+            <View style={styles.timerBarContainer}>
+              <View style={[styles.timerBar, {width: `${timerWidth}%`}]}></View>
+            </View>
+            <View style={styles.scoreContainer}>
+              <Text style={styles.scoreText}>Score: {score}</Text>
+              <Text style={styles.timerText}>Time: {timer}s</Text>
+              <Text style={styles.decisionTimerText}>Answer in: {decisionTime}s</Text>
+            </View>
+            <View style={styles.centered}>
+              <Text style={[styles.text, {color: displayColor}]}>{textColor}</Text>
+            </View>
+            <View style={styles.optionsContainer}>
+              <FlatList
+                  data={options}
+                  numColumns={2} // Set the number of columns
+                  keyExtractor={(item) => item}
+                  renderItem={renderButton}
+              />
+            </View>
           </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
   );
 }
 
