@@ -72,12 +72,15 @@ function GameScreen1() {
   const [isCountingDown, setIsCountingDown] = useState(false);
   const { user } = useAuth();
   const scoreApi = useApi(usersApi.updateScore);
+  const starsApi = useApi(usersApi.updateStars);
 
   const updateScore = async (id, scoreToAdd) => {
-    console.log(scoreToAdd);
-    console.log(id);
-    const result = await scoreApi.request(id, scoreToAdd);
-    console.log(result);
+    await scoreApi.request(id, scoreToAdd);
+    return;
+  }
+
+  const updateStars = async (id, stars) => {
+    await starsApi.request(id, stars);
     return;
   }
 
@@ -108,6 +111,7 @@ function GameScreen1() {
       askToStartRecording();
     } else if (isGameOver && timer == 0) {
       updateScore(user.userId, score);
+      updateStars(user.userId, 1)
     }
 
     let countdown = null;

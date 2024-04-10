@@ -15,4 +15,7 @@ export default {
   darkGreen: "#063852",
   grey: "#5B7C99",
   brown: "#b5953c",
+  gold: "#f8a411",
+  silver: "#b5c0c0",
+  bronze: "#fe7d3e",
 };

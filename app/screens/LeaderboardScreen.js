@@ -7,8 +7,8 @@ import colors from "../config/colors";
 
 function LeaderboardScreen() {
 
-  useEffect(() => {
-  }, []);
+  // useEffect(() => {
+  // }, []);
 
   return (
     <Screen>
