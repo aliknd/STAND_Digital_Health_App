@@ -6,7 +6,7 @@ import AppText from "./AppText";
 function TopLeaderboardListItem({ name, score, image, medal, bgdcolor, size}) {
   return (
       <View style={styles.container}>
-          <View  style={{backgroundColor:bgdcolor, padding: 5}}>
+          <View  style={{backgroundColor:bgdcolor, padding: 5, borderRadius: 10,}}>
               <Image source={image} style={{ width: size, height: size, borderRadius: 35,}}/>
               <Image source={medal} style={styles.medal}/>
           </View>

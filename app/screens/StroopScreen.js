@@ -1,18 +1,16 @@
 //<script src="config/AWSconfig.js"></script>
 import { AWSconfig } from '../../config/AWSconfig';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
 import { Camera, CameraType } from 'expo-camera';
-// import { Video } from 'expo-av';
-// import { shareAsync } from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
 import { FlatList } from 'react-native-gesture-handler';
 import AWS from 'aws-sdk';
 import { Audio } from 'expo-av';
-import endpointURL from "../api/serverPoint";
 import useAuth from "../auth/useAuth";
 import useApi from "../hooks/useApi";
 import usersApi from "../api/users";
+import starsApi from "../api/stars";
 
 AWS.config.update({
   accessKeyId: AWSconfig.ACCESS_KEY_ID,
@@ -47,14 +45,13 @@ const getShuffledColorsWithAnswer = (answer) => {
   const allOptions = [answer, ...selectedColors].sort(() => 0.5 - Math.random());
   return allOptions;
 };
-
-function GameScreen1() {
+function GameScreen1( {numTimesPlayed, setNumTimesPlayed }  ) {
   // let cameraRef = useRef();
   const [textColor, setTextColor] = useState(getRandomColor());
   const [displayColor, setDisplayColor] = useState(getRandomColor());
   const [options, setOptions] = useState(getShuffledColorsWithAnswer(displayColor));
   const [score, setScore] = useState(0);
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(3);
   const [timerWidth, setTimerWidth] = useState(100);
   const [decisionTime, setDecisionTime] = useState(5);
   const [hasCameraPermission, setHasCameraPermission] = useState();
@@ -69,19 +66,16 @@ function GameScreen1() {
   const [videoUri, setVideoUri] = useState(null);
   const [firstStart, setFirstStart] = useState(true);
   const [cameraRef, setCameraRef] = useState(null);
-  const [isCountingDown, setIsCountingDown] = useState(false);
   const { user } = useAuth();
   const scoreApi = useApi(usersApi.updateScore);
-  const starsApi = useApi(usersApi.updateStars);
+  const updateTimesPlayedApi = useApi(starsApi.updateTimesPlayed);
 
   const updateScore = async (id, scoreToAdd) => {
     await scoreApi.request(id, scoreToAdd);
-    return;
   }
 
-  const updateStars = async (id, stars) => {
-    await starsApi.request(id, stars);
-    return;
+  const updateTimesPlayed = async (id) => {
+    await updateTimesPlayedApi.request(id);
   }
 
     useEffect(() => {
@@ -111,7 +105,9 @@ function GameScreen1() {
       askToStartRecording();
     } else if (isGameOver && timer == 0) {
       updateScore(user.userId, score);
-      updateStars(user.userId, 1)
+
+      // if user played 4 times today, grant a star
+      updateTimesPlayed(user.userId);
     }
 
     let countdown = null;
@@ -310,38 +306,38 @@ function GameScreen1() {
   }
 
   return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <Camera
-              style={styles.preview}
-              type={CameraType.front}
-              // ratio={"16:9"} only on android
-              ref={(ref) => setCameraRef(ref)}
-          >
-          </Camera>
-          <View style={styles.overlay}>
-            <View style={styles.timerBarContainer}>
-              <View style={[styles.timerBar, {width: `${timerWidth}%`}]}></View>
-            </View>
-            <View style={styles.scoreContainer}>
-              <Text style={styles.scoreText}>Score: {score}</Text>
-              <Text style={styles.timerText}>Time: {timer}s</Text>
-              <Text style={styles.decisionTimerText}>Answer in: {decisionTime}s</Text>
-            </View>
-            <View style={styles.centered}>
-              <Text style={[styles.text, {color: displayColor}]}>{textColor}</Text>
-            </View>
-            <View style={styles.optionsContainer}>
-              <FlatList
-                  data={options}
-                  numColumns={2} // Set the number of columns
-                  keyExtractor={(item) => item}
-                  renderItem={renderButton}
-              />
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.container}>
+            <Camera
+                style={styles.preview}
+                type={CameraType.front}
+                // ratio={"16:9"} only on android
+                ref={(ref) => setCameraRef(ref)}
+            >
+            </Camera>
+            <View style={styles.overlay}>
+              <View style={styles.timerBarContainer}>
+                <View style={[styles.timerBar, {width: `${timerWidth}%`}]}></View>
+              </View>
+              <View style={styles.scoreContainer}>
+                <Text style={styles.scoreText}>Score: {score}</Text>
+                <Text style={styles.timerText}>Time: {timer}s</Text>
+                <Text style={styles.decisionTimerText}>Answer in: {decisionTime}s</Text>
+              </View>
+              <View style={styles.centered}>
+                <Text style={[styles.text, {color: displayColor}]}>{textColor}</Text>
+              </View>
+              <View style={styles.optionsContainer}>
+                <FlatList
+                    data={options}
+                    numColumns={2} // Set the number of columns
+                    keyExtractor={(item) => item}
+                    renderItem={renderButton}
+                />
+              </View>
             </View>
           </View>
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
   );
 }
 
