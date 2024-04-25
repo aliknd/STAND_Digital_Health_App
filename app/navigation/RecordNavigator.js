@@ -12,6 +12,7 @@ import LeaderboardScreen from "../screens/LeaderboardScreen";
 import AwardedStarsScreen from "../screens/AwardedStarsScreen";
 import {createContext} from 'react';
 import StarsScreen from "../screens/AwardedStarsScreen";
+import GameScreen2 from '../screens/SequenceScreen';
 
 const StarContext = createContext(false);
 const Stack = createStackNavigator();
@@ -58,6 +59,7 @@ const RecordNavigator = () => {
                 {props => <GameScreen1 {...props} numTimesPlayed={numTimesPlayed}
                                        setNumTimesPlayed={setNumTimesPlayed}/>}
             </Stack.Screen>
+            <Stack.Screen name="Sequence" component={GameScreen2} />
             <Stack.Screen name="Leaderboard" component={LeaderboardScreen}/>
             <Stack.Screen name="Awarded Stars">
                 {props => <StarsScreen {...props} numTimesPlayed={numTimesPlayed}/>}

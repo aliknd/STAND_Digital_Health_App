@@ -50,6 +50,15 @@ function AccountScreen({ navigation }) {
                     }
                     onPress={() => navigation.navigate("Stroop")}
                 />
+                <ListItem
+                    title="Chimp Game"
+                    title="Sequence Memory Game"
+                    IconComponent={
+                        <Icon name="download-box" backgroundColor={colors.primary} />
+                    }
+                    onPress={() => navigation.navigate("Chimp")}
+                    onPress={() => navigation.navigate("Sequence")}
+                />
             </View>
             <View style={styles.container}>
                 <ListItem
