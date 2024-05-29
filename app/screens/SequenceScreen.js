@@ -1,7 +1,7 @@
 import { AWSconfig } from '../../config/AWSconfig';
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { FlatList } from 'react-native-gesture-handler';
 import AWS from 'aws-sdk';

@@ -3,7 +3,7 @@ import 'react-native-url-polyfill/auto';
 import 'react-native-get-random-values';
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { FlatList } from 'react-native-gesture-handler';
 import AWS from 'aws-sdk';
@@ -13,6 +13,7 @@ import useAuth from "../auth/useAuth";
 import useApi from "../hooks/useApi";
 import usersApi from "../api/users";
 import starsApi from "../api/stars";
+import navigation from "../navigation/rootNavigation";
 
 AWS.config.update({
   accessKeyId: AWSconfig.ACCESS_KEY_ID,
@@ -276,8 +277,8 @@ function GameScreen1() {
     return (
         <View style={styles.centered}>
           <Text style={styles.finalScoreText}>Final Score: {score}</Text>
-          <TouchableOpacity style={styles.restartButton} onPress={restartGame}>
-            <Text style={styles.restartButtonText}>Restart Game</Text>
+          <TouchableOpacity style={styles.restartButton} onPress={() => navigation.navigate("Questionnaire", { screen: 'QuestionnaireScreen'})}>
+            <Text style={styles.restartButtonText}>Answer Questionnaire</Text>
           </TouchableOpacity>
         </View>
     );
