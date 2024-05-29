@@ -3,7 +3,7 @@ import 'react-native-url-polyfill/auto';
 import 'react-native-get-random-values';
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { FlatList } from 'react-native-gesture-handler';
 import AWS from 'aws-sdk';
@@ -153,9 +153,6 @@ function GameScreen1() {
           }
         });
       }, 1000);
-
-
-
 
       decisionCountdown = setInterval(() => {
         setDecisionTime(prevDecisionTime => {

@@ -1,7 +1,7 @@
 import { AWSconfig } from '../../config/AWSconfig';
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { FlatList } from 'react-native-gesture-handler';
 import AWS from 'aws-sdk';
@@ -93,7 +93,7 @@ function GameScreen2() {
         // Introduce a delay before setting isWatchingPattern to true
         setTimeout(() => {
             setIsWatchingPattern(true);
-        }, 1500); // 2 second delay
+        }, 1300);
     };
 
     useEffect(() => {
@@ -112,8 +112,10 @@ function GameScreen2() {
                 }, 500);
 
                 if (currentIndex === 0) {
-                    console.log("here");
-                    setIsWatchingPattern(false);
+                    // Introduce a delay before setting isWatchingPattern to false
+                    setTimeout(() => {
+                        setIsWatchingPattern(false);
+                    }, 1300);
                 } else {
                     setTimeout(flashPattern, 1000); // Wait before starting the next flash
                 }
@@ -248,10 +250,10 @@ function GameScreen2() {
 
     const renderButton = ({ item, index }) => (
         <TouchableOpacity
-            style={[styles.buttonBase, index === flashingIndex && styles.buttonFlash]}
-            onPress={() => handlePress(item)}>
-            {/* <Text style={styles.buttonText}>{item}</Text> */}
-        </TouchableOpacity>
+        style={[styles.buttonBase, index === flashingIndex && styles.buttonFlash]}
+        onPress={() => handlePress(item)}
+    >
+    </TouchableOpacity>
     );
 
     const handlePress = (boxNum) => {
@@ -315,7 +317,7 @@ function GameScreen2() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.container}>
+            <View style={!isWatchingPattern ? styles.container : styles.containerAlt}>
                 <CameraComponent cameraRef={cameraRef} onCameraReady={() => console.log('Camera ready!')} />
 
                 {!isGameStarted ? (
@@ -324,6 +326,8 @@ function GameScreen2() {
                         <TouchableOpacity style={styles.restartButton} onPress={launchGame}>
                             <Text style={styles.restartButtonText}>Start Recording</Text>
                         </TouchableOpacity>
+                        <Text style={styles.instructionText}>Instructions:</Text>
+                        <Text style={styles.instructionText}>Memorize the sequence of flashing squares and repeat when the screen turns green</Text>
                     </View>
                 ) : (
                     <View style={styles.overlay}>
@@ -334,9 +338,12 @@ function GameScreen2() {
                             <Text style={styles.scoreText}>Score: {score}</Text>
                             <Text style={styles.timerText}>Time: {timer}s</Text>
                         </View>
-                        {!isWatchingPattern && (
-                            <Text style={styles.watchPatternText}>Watch the pattern</Text>
-                        )}
+
+                        <View>
+                            <Text style={styles.promptText}>
+                                {isWatchingPattern ? 'Memorize the pattern' : 'Repeat the pattern'}
+                            </Text>
+                        </View>
 
                         <View style={styles.gameBoard}>
                             <View style={styles.optionsContainer}>
@@ -348,7 +355,6 @@ function GameScreen2() {
                                 />
                             </View>
                         </View>
-
                     </View>
                 )}
 
@@ -364,7 +370,12 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: '#bcffbd',
+        flexDirection: 'row',
+    },
+    containerAlt: {
+        flex: 1,
+        backgroundColor: '#dddddd',
         flexDirection: 'row',
     },
     preview: {
@@ -399,10 +410,28 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    promptText: {
+        textAlign: 'right',
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginRight: 10,
+        color: 'red'
+    },
     countdownText: {
         fontSize: 30,
         fontWeight: 'bold',
         color: '#2c3e50',
+        marginTop: 75,
+        marginBottom: 10,
+    },
+    instructionText: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+        marginTop: 10,
+        textAlign: 'center',
+        marginRight: 10,
+        marginLeft: 10
     },
     finalScoreText: {
         fontSize: 30,
@@ -452,7 +481,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         padding: 20,
-        paddingTop: 150,
+        paddingTop: 130,
         marginBottom: 80,
     },
     buttonBase: {
