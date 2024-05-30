@@ -5,29 +5,50 @@ import { Camera, CameraType } from 'expo-camera/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { FlatList } from 'react-native-gesture-handler';
 import AWS from 'aws-sdk';
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Audio } from 'expo-av';
 import Queue from '../screens/Queue';
-const Stack = require('../screens/Queue');
+import navigation from "../navigation/rootNavigation";
+import useAuth from "../auth/useAuth";
 
 AWS.config.update({
     accessKeyId: AWSconfig.ACCESS_KEY_ID,
     secretAccessKey: AWSconfig.SECRET_ACCESS_KEY,
     region: AWSconfig.REGION
-});
+  });
 
-const s3 = new AWS.S3();
-
-const uploadFileToS3 = (bucketName, fileName, filePath, uri) => {
-    const params = {
-        Bucket: "standhealth",
-        Key: fileName,
-        Body: filePath,
-        ACL: 'public-read',
-        ContentType: 'video/mp4',
+  const client = new S3Client({
+    region: AWSconfig.REGION,
+    credentials: {
+      accessKeyId: AWSconfig.ACCESS_KEY_ID,
+      secretAccessKey: AWSconfig.SECRET_ACCESS_KEY
     }
+  });
 
-    return s3.upload(params).promise();
-};
+  const uploadVideoToS3 = async (userEmail, bucketName, videoExtension, recordedVideoURI) => {
+    console.log("uploadVideoToS3");
+    const currentDate = new Date();
+  
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+    const day = currentDate.getDate();
+    const hours = currentDate.getHours();
+    const minutes = currentDate.getMinutes();
+    const seconds = currentDate.getSeconds();
+  
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: userEmail + "/" + year + "-" + month + "-" + day + "-" + hours + "-" + minutes + "-" + seconds + videoExtension,
+      Body: recordedVideoURI,
+    });
+  
+    try {
+      const response = await client.send(command);
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
 const CameraComponent = ({ cameraRef, onCameraReady }) => {
     const handleCameraReady = () => {
@@ -76,6 +97,7 @@ function GameScreen2() {
     const [patternArr, setPatternArr] = useState([]);
     const [userSelection, setUserSelection] = useState(new Queue());
     const [isWatchingPattern, setIsWatchingPattern] = useState(false);
+    const { user } = useAuth();
 
     const generateNewPattern = () => {
         console.log("generating new pattern");
@@ -93,7 +115,7 @@ function GameScreen2() {
         // Introduce a delay before setting isWatchingPattern to true
         setTimeout(() => {
             setIsWatchingPattern(true);
-        }, 1500); // 2 second delay
+        }, 1300);
     };
 
     useEffect(() => {
@@ -112,8 +134,10 @@ function GameScreen2() {
                 }, 500);
 
                 if (currentIndex === 0) {
-                    console.log("here");
-                    setIsWatchingPattern(false);
+                    // Introduce a delay before setting isWatchingPattern to false
+                    setTimeout(() => {
+                        setIsWatchingPattern(false);
+                    }, 1300);
                 } else {
                     setTimeout(flashPattern, 1000); // Wait before starting the next flash
                 }
@@ -125,7 +149,7 @@ function GameScreen2() {
         return () => {
             clearTimeout(timeoutId);
         };
-    }, [isWatchingPattern, isGameStarted, isGameOver]);
+    }, [isWatchingPattern, isGameStarted]);
 
     // controls game start and end (timer)
     useEffect(() => {
@@ -174,7 +198,7 @@ function GameScreen2() {
             if (countdown) clearInterval(countdown);
             if (preGameTimer) clearTimeout(preGameTimer);
         };
-    }, [isGameStarted, isGameOver, preGameCountdown, timer, score, isRecording, isAskingToRecord, firstStart, video]);
+    }, [isGameStarted, isGameOver, preGameCountdown, timer, score, isRecording, isAskingToRecord, firstStart]);
 
     if (hasCameraPermission === undefined || hasMicrophonePermission === undefined || hasMediaLibraryPermission === undefined) {
         return <View style={styles.centered}><Text>Requesting permissions...</Text></View>;
@@ -182,51 +206,41 @@ function GameScreen2() {
         return <View style={styles.centered}><Text>Permission not granted.</Text></View>;
     }
 
-    let setVideoState = (videoData, callback) => {
-        setVideo(videoData);
-        if (typeof callback === 'function') {
-            callback();
-        }
-        return Promise.resolve();
-    };
-
     let recordVideo = () => {
-        console.log("started recording video");
+        console.log("recordVideo");
         setIsRecording(true);
         let options = {
-            quality: "1080p",
-            maxDuration: 60,
-            mute: true,
-            videoCodec: "avc1",
+          quality: "1080p",
+          maxDuration: 60,
+          mute: true,
+          videoCodec: "avc1",
         };
-
-        console.log("cameraref 1: " + cameraRef.current);
+    
         cameraRef.current.recordAsync(options).then((recordedVideo) => {
-            console.log("cameraref 3: " + cameraRef.current);
-            console.log("in the record async function");
-            console.log("recorded video" + recordedVideo);
-
-            setVideoState(recordedVideo, () => {
-                console.log("video: "+ recordedVideo);
-                console.log("video uri: "+ recordedVideo.uri);
-                setVideo(recordedVideo);
-                console.log("saving video");
-                saveVideo(recordedVideo);
-            });
+          console.log("awaited");  
+          saveVideo(recordedVideo, user.email);
         });
-    };
+      };
 
     let stopRecord = () => {
-        console.log("cameraref 2: " + cameraRef.current);
-        console.log("in stopRecording");
         setIsRecording(false);
-        cameraRef.current.stopRecording();
-        console.log("cameraref 2.5: " + cameraRef.current);
-    };
+      };
 
-    let saveVideo = (afterRecordingVideo) => {
-        console.log("cameraref 4: " + cameraRef.current);
-    };
+    let saveVideo = async (afterRecordingVideo, email) => {
+        console.log("saveVideo");
+        const filePath = afterRecordingVideo.uri.replace('file://', '');
+        const extension = afterRecordingVideo.uri.substring(afterRecordingVideo.uri.lastIndexOf('.'));
+        console.log("uri: ", afterRecordingVideo.uri);
+        console.log("filepath: ", filePath);
+        console.log("extension: ", extension);
+    
+        const fileData = await fetch(filePath).then(response =>
+            response.blob()
+        );
+        console.log("fileData: ", fileData);
+    
+        await uploadVideoToS3(email, "standhealth", extension, fileData);
+      };
 
     const recordingFinishedPopup = () => {
         stopRecord();
@@ -248,10 +262,10 @@ function GameScreen2() {
 
     const renderButton = ({ item, index }) => (
         <TouchableOpacity
-            style={[styles.buttonBase, index === flashingIndex && styles.buttonFlash]}
-            onPress={() => handlePress(item)}>
-            {/* <Text style={styles.buttonText}>{item}</Text> */}
-        </TouchableOpacity>
+        style={[styles.buttonBase, index === flashingIndex && styles.buttonFlash]}
+        onPress={() => handlePress(item)}
+    >
+    </TouchableOpacity>
     );
 
     const handlePress = (boxNum) => {
@@ -278,44 +292,20 @@ function GameScreen2() {
         setIsAskingToRecord(false);
     }
 
-    const handleCameraReady = () => {
-        console.log('Camera is ready');
-        if (isRecording) {
-            console.log('Recording started');
-            // Call startRecording function when the camera is ready if recording is enabled
-            startRecording();
-        }
-    };
-
-    const restartGame = () => {
-        setIsGameOver(false);
-        setIsGameStarted(false);
-        setPreGameCountdown(3);
-        setScore(0);
-        setTimer(30);
-        setTimerWidth(100);
-        setIsAskingToRecord(true);
-        setIsRecording(false);
-        setVideo(undefined);
-        setPattern([]); // Reset the pattern
-        setUserSelection([]); // Reset user's selection
-        setCurrentLevel(1); // Reset current level
-    };
-
     if (isGameOver) {
         return (
             <View style={styles.centered}>
-                <Text style={styles.finalScoreText}>Final Score: {score}</Text>
-                <TouchableOpacity style={styles.restartButton} onPress={restartGame}>
-                    <Text style={styles.restartButtonText}>Restart Game</Text>
-                </TouchableOpacity>
+              <Text style={styles.finalScoreText}>Final Score: {score}</Text>
+              <TouchableOpacity style={styles.restartButton} onPress={() => navigation.navigate("Questionnaire", { screen: 'QuestionnaireScreen'})}>
+                <Text style={styles.restartButtonText}>Answer Questionnaire</Text>
+              </TouchableOpacity>
             </View>
         );
-    }
+      }
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.container}>
+            <View style={!isWatchingPattern ? styles.container : styles.containerAlt}>
                 <CameraComponent cameraRef={cameraRef} onCameraReady={() => console.log('Camera ready!')} />
 
                 {!isGameStarted ? (
@@ -324,6 +314,8 @@ function GameScreen2() {
                         <TouchableOpacity style={styles.restartButton} onPress={launchGame}>
                             <Text style={styles.restartButtonText}>Start Recording</Text>
                         </TouchableOpacity>
+                        <Text style={styles.instructionText}>Instructions:</Text>
+                        <Text style={styles.instructionText}>Memorize the sequence of flashing squares and repeat when the screen turns green</Text>
                     </View>
                 ) : (
                     <View style={styles.overlay}>
@@ -334,9 +326,12 @@ function GameScreen2() {
                             <Text style={styles.scoreText}>Score: {score}</Text>
                             <Text style={styles.timerText}>Time: {timer}s</Text>
                         </View>
-                        {!isWatchingPattern && (
-                            <Text style={styles.watchPatternText}>Watch the pattern</Text>
-                        )}
+
+                        <View>
+                            <Text style={styles.promptText}>
+                                {isWatchingPattern ? 'Memorize the pattern' : 'Repeat the pattern'}
+                            </Text>
+                        </View>
 
                         <View style={styles.gameBoard}>
                             <View style={styles.optionsContainer}>
@@ -348,7 +343,6 @@ function GameScreen2() {
                                 />
                             </View>
                         </View>
-
                     </View>
                 )}
 
@@ -364,7 +358,12 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: '#bcffbd',
+        flexDirection: 'row',
+    },
+    containerAlt: {
+        flex: 1,
+        backgroundColor: '#dddddd',
         flexDirection: 'row',
     },
     preview: {
@@ -399,10 +398,28 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    promptText: {
+        textAlign: 'right',
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginRight: 10,
+        color: 'red'
+    },
     countdownText: {
         fontSize: 30,
         fontWeight: 'bold',
         color: '#2c3e50',
+        marginTop: 75,
+        marginBottom: 10,
+    },
+    instructionText: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+        marginTop: 10,
+        textAlign: 'center',
+        marginRight: 10,
+        marginLeft: 10
     },
     finalScoreText: {
         fontSize: 30,
@@ -452,7 +469,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         padding: 20,
-        paddingTop: 150,
+        paddingTop: 130,
         marginBottom: 80,
     },
     buttonBase: {

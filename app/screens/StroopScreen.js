@@ -155,9 +155,6 @@ function GameScreen1() {
         });
       }, 1000);
 
-
-
-
       decisionCountdown = setInterval(() => {
         setDecisionTime(prevDecisionTime => {
           if (prevDecisionTime <= 1) {
