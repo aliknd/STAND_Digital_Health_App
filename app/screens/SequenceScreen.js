@@ -10,6 +10,9 @@ import { Audio } from 'expo-av';
 import Queue from '../screens/Queue';
 import navigation from "../navigation/rootNavigation";
 import useAuth from "../auth/useAuth";
+import usersApi from "../api/users";
+import starsApi from "../api/stars";
+import useApi from "../hooks/useApi";
 
 AWS.config.update({
     accessKeyId: AWSconfig.ACCESS_KEY_ID,
@@ -98,6 +101,16 @@ function GameScreen2() {
     const [userSelection, setUserSelection] = useState(new Queue());
     const [isWatchingPattern, setIsWatchingPattern] = useState(false);
     const { user } = useAuth();
+    const scoreApi = useApi(usersApi.updateScore);
+    const updateTimesPlayedApi = useApi(starsApi.updateTimesPlayed);
+
+    const updateScore = async (id, scoreToAdd) => {
+        await scoreApi.request(id, scoreToAdd);
+    }
+
+    const updateTimesPlayed = async (id) => {
+        await updateTimesPlayedApi.request(id);
+    }
 
     const generateNewPattern = () => {
         console.log("generating new pattern");
@@ -192,6 +205,12 @@ function GameScreen2() {
                     }
                 });
             }, 1000);
+        }
+
+        if (isGameOver && timer == 0) {
+            updateScore(user.userId, score);
+            // if user played 4 times today, grant a star
+            updateTimesPlayed(user.userId);
         }
 
         return () => {
