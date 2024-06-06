@@ -167,9 +167,8 @@ function GameScreen1() {
       }, 1000);
     }
 
-    if (isGameOver && timer == 0) {
+    if (isGameOver && timer == 0 && firstStart) {
       updateScore(user.userId, score);
-      // if user played 4 times today, grant a star
       updateTimesPlayed(user.userId);
     }
 

@@ -6,53 +6,60 @@ import useAuth from "../auth/useAuth";
 import endpointURL from "../api/serverPoint";
 import DayComponent from "../components/DayComponent";
 
-function StarsScreen( {numTimesPlayed }  ) {
+function StarsScreen() {
     const { user } = useAuth();
     const header = "Weekly Activity";
     const header2 = "Daily Bonus Star";
     const bodyText = ' If you play a game daily for an entire week consecutively you earn one star for the week!';
     const bodyText2 = `Every 4 times you play a game, you will receive a bonus star!`;
     const [data, setData] = useState([]);
+    const [dayData1, setDayData1] = useState([]);
+    const [dayData2, setDayData2] = useState([]);
     const [gotRes, setGotRes] = useState(false)
-    const fetchedUser = data.find(obj => obj.id === user.userId);
-    const [dayData, setDayData] = useState(
+    let [dayData, setDayData] = useState(
         [
-            { day: 'Sunday', checked: false },
-            { day: 'Monday', checked: false  },
-            { day: 'Tuesday', checked: false  },
-            { day: 'Wednesday', checked: false },
-            { day: 'Thursday', checked: false  },
-            { day: 'Friday', checked: false },
-            { day: 'Saturday', checked: false },
-        ]
-    )
-    // const updateStarsApi = useApi(starsApi.updateStars);
-    //
-    // // const updateStars = async (id, stars) => {
-    // //     await updateStarsApi.request(id, stars);
-    // // }
+            { day: 'sunday', checked: false },
+            { day: 'monday', checked: false  },
+            { day: 'tuesday', checked: false  },
+            { day: 'wednesday', checked: false },
+            { day: 'thursday', checked: false  },
+            { day: 'friday', checked: false },
+            { day: 'saturday', checked: false },
+        ]); 
+    const [fetchedUserData, setFetchedUserData] = useState(null);
 
     const getStarsData = async () => {
         try {
             const response = await fetch(endpointURL + "/timesplayedupdate");
             const json = await response.json();
             setData(json);
-            setGotRes(true);
         } catch (error) {
             console.error(error);
         }
     };
 
+    const updateDays = (userData) => {
+        const updatedDayData = dayData = dayData.map(item => {
+            if (userData[item.day] >= 1) {
+                return { ...item, checked: true };
+            }
+            return item;
+        });
+        setDayData(updatedDayData);
+    };
+
     useEffect(() => {
         getStarsData();
-        const currentDate = new Date();
-        if (numTimesPlayed >= 1) {
-            const updatedDayData = [...dayData]; // Create a copy of the dayData array
-            updatedDayData[currentDate.getDay()].checked = true; // Update the copy
-            setDayData(updatedDayData);
-        }
-    }, [numTimesPlayed]);
+    }, []);
 
+    useEffect(() => {
+        if (data.length > 0) {
+            const userData = data.find(obj => obj.id === user.userId);
+            setFetchedUserData(userData);
+            updateDays(userData);
+            setGotRes(true);
+        }
+    }, [data]);
 
     if(gotRes) {
         const dayData1 = dayData.slice(0,4);
@@ -65,7 +72,7 @@ function StarsScreen( {numTimesPlayed }  ) {
                     </Text>
                     <Image style={styles.image} source={require("../assets/golden_star.png")}/>
                     <Text style={styles.goldText}>
-                        {fetchedUser.totalStars.toString()}
+                        {fetchedUserData.totalStars.toString()}
                     </Text>
                 </View>
 
@@ -94,14 +101,13 @@ function StarsScreen( {numTimesPlayed }  ) {
                     <Text style={styles.baseText}>
                         {bodyText2}
                     </Text>
-
-                    {fetchedUser.timesPlayed == 4 ? <View style={styles.container}>
+                    {fetchedUserData.timesPlayed == 4 ? <View style={styles.container}>
                         <Text style={styles.obtainedStar}>
                             {'Obtained Daily Star! Play more to earn another!'}
                         </Text>
                     </View> : <View style={styles.container}>
                         <Text style={styles.obtainedStar}>
-                            {'Play '+ (4 - fetchedUser.timesPlayed) + ' more times to get a bonus star!'}
+                            {'Play '+ (4 - fetchedUserData.timesPlayed) + ' more times to get a bonus star!'}
                         </Text>
                     </View>}
                 </View>

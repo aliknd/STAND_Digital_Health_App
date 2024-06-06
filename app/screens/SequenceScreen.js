@@ -209,7 +209,6 @@ function GameScreen2() {
 
         if (isGameOver && timer == 0) {
             updateScore(user.userId, score);
-            // if user played 4 times today, grant a star
             updateTimesPlayed(user.userId);
         }
 
